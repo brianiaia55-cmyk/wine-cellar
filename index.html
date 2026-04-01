@@ -235,8 +235,7 @@
   }
 
   .table-wrap {
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
+    width: 100%;
   }
 
   table {
@@ -245,7 +244,8 @@
   }
 
   @media (max-width: 768px) {
-    table { min-width: 700px; }
+    .col-label, .col-vintage, .col-region { display: none; }
+    .main { padding: 16px 12px 40px; }
   }
 
   th {
@@ -861,9 +861,9 @@ function renderTable() {
       <th onclick="setSort('slot')" class="${sortKey==='slot'?'sort-'+sortDir:''}">Slot</th>
       <th>Qty</th>
       <th onclick="setSort('producer')" class="${sortKey==='producer'?'sort-'+sortDir:''}">Producer</th>
-      <th>Label</th>
-      <th onclick="setSort('vintage')" class="${sortKey==='vintage'?'sort-'+sortDir:''}">Vintage</th>
-      <th onclick="setSort('region')" class="${sortKey==='region'?'sort-'+sortDir:''}">Region</th>
+      <th class="col-label">Label</th>
+      <th class="col-vintage" onclick="setSort('vintage')" class="${sortKey==='vintage'?'sort-'+sortDir:''}">Vintage</th>
+      <th class="col-region" onclick="setSort('region')" class="${sortKey==='region'?'sort-'+sortDir:''}">Region</th>
       <th onclick="setSort('value')" class="${sortKey==='value'?'sort-'+sortDir:''}" style="text-align:right">$/btl</th>
       <th></th>
     </tr></thead><tbody>`;
@@ -874,9 +874,9 @@ function renderTable() {
         <td><span class="slot-badge" style="color:${color2};border-color:${color2}40;background:${color2}12">${e.slot}</span></td>
         <td><span class="qty-badge">${e.qty}</span></td>
         <td class="producer">${e.producer}</td>
-        <td class="label">${e.label}</td>
-        <td class="vintage">${e.vintage}</td>
-        <td class="region">${e.region}</td>
+        <td class="label col-label">${e.label}</td>
+        <td class="vintage col-vintage">${e.vintage}</td>
+        <td class="region col-region">${e.region}</td>
         <td class="value">$${e.value.toFixed(0)}</td>
         <td><div class="actions">
           <button class="btn-sm edit-btn" onclick="openEdit(${e.id})">Edit</button>
