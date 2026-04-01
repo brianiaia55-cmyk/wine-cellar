@@ -791,6 +791,10 @@ function getFilteredData() {
   data.sort((a, b) => {
     let va = a[sortKey], vb = b[sortKey];
     if (sortKey === 'value') { va = parseFloat(va); vb = parseFloat(vb); }
+    if (sortKey === 'slot') {
+      const cmp = va.localeCompare(vb, undefined, { numeric: true, sensitivity: 'base' });
+      return sortDir === 'asc' ? cmp : -cmp;
+    }
     if (va < vb) return sortDir === 'asc' ? -1 : 1;
     if (va > vb) return sortDir === 'asc' ? 1 : -1;
     return 0;
@@ -844,7 +848,16 @@ function renderTable() {
       <span class="section-meta">${rowBottles} btl · $${rowVal.toLocaleString(undefined,{minimumFractionDigits:0,maximumFractionDigits:0})}</span>
     </div>`;
 
-    html += `<table><thead><tr>
+    html += `<table style="table-layout:fixed;width:100%"><colgroup>
+      <col style="width:90px">
+      <col style="width:60px">
+      <col style="width:18%">
+      <col style="width:auto">
+      <col style="width:80px">
+      <col style="width:15%">
+      <col style="width:70px">
+      <col style="width:100px">
+    </colgroup><thead><tr>
       <th onclick="setSort('slot')" class="${sortKey==='slot'?'sort-'+sortDir:''}">Slot</th>
       <th>Qty</th>
       <th onclick="setSort('producer')" class="${sortKey==='producer'?'sort-'+sortDir:''}">Producer</th>
