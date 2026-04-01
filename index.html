@@ -241,8 +241,11 @@
 
   table {
     width: 100%;
-    min-width: 700px;
     border-collapse: collapse;
+  }
+
+  @media (max-width: 768px) {
+    table { min-width: 700px; }
   }
 
   th {
