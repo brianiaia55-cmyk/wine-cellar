@@ -1,596 +1,477 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Wine Cellar Registry</title>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet">
-<style>
-  :root {
-    --bg: #0d0a08;
-    --surface: #141009;
-    --card: #1a1410;
-    --border: #2a2018;
-    --border-light: #3a3025;
-    --gold: #c9a84c;
-    --gold-dim: #8a6e30;
-    --gold-subtle: #3d2e12;
-    --text: #e8dcc8;
-    --text-dim: #9a8a72;
-    --text-muted: #5a4e3e;
-    --red-wine: #7a1e2e;
-    --row-a: #c9a84c;
-    --row-b: #6db87a;
-    --row-c: #5ba8d4;
-    --row-d: #e07856;
-    --row-e: #c46bb8;
-    --row-f: #d4b84a;
-    --row-g: #78c4b2;
-    --row-h: #e8845c;
-  }
-
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: 'DM Mono', monospace;
-    font-size: 13px;
-    min-height: 100vh;
-  }
-
-  /* Grain overlay */
-  body::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
-    pointer-events: none;
-    z-index: 1000;
-    opacity: 0.4;
-  }
-
-  .header {
-    border-bottom: 1px solid var(--border);
-    padding: 32px 40px 24px;
-    display: flex;
-    align-items: flex-end;
-    justify-content: space-between;
-    gap: 24px;
-    flex-wrap: wrap;
-  }
-
-  .header-left h1 {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 42px;
-    font-weight: 300;
-    color: var(--gold);
-    letter-spacing: 0.04em;
-    line-height: 1;
-  }
-
-  .header-left p {
-    color: var(--text-dim);
-    margin-top: 6px;
-    font-size: 11px;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-  }
-
-  .stats {
-    display: flex;
-    gap: 32px;
-    flex-wrap: wrap;
-  }
-
-  .stat {
-    text-align: right;
-  }
-
-  .stat-val {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 28px;
-    font-weight: 300;
-    color: var(--gold);
-    line-height: 1;
-  }
-
-  .stat-label {
-    color: var(--text-muted);
-    font-size: 10px;
-    letter-spacing: 0.15em;
-    text-transform: uppercase;
-    margin-top: 3px;
-  }
-
-  .toolbar {
-    padding: 16px 40px;
-    display: flex;
-    gap: 12px;
-    align-items: center;
-    border-bottom: 1px solid var(--border);
-    flex-wrap: wrap;
-  }
-
-  .search-wrap {
-    position: relative;
-    flex: 1;
-    min-width: 200px;
-    max-width: 340px;
-  }
-
-  .search-wrap input {
-    width: 100%;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    color: var(--text);
-    font-family: 'DM Mono', monospace;
-    font-size: 12px;
-    padding: 8px 12px 8px 32px;
-    outline: none;
-    transition: border-color 0.2s;
-  }
-
-  .search-wrap input:focus { border-color: var(--gold-dim); }
-  .search-wrap input::placeholder { color: var(--text-muted); }
-
-  .search-icon {
-    position: absolute;
-    left: 10px;
-    top: 50%;
-    transform: translateY(-50%);
-    color: var(--text-muted);
-    font-size: 12px;
-    pointer-events: none;
-  }
-
-  .filter-btn {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    color: var(--text-dim);
-    font-family: 'DM Mono', monospace;
-    font-size: 11px;
-    padding: 8px 14px;
-    cursor: pointer;
-    letter-spacing: 0.06em;
-    transition: all 0.15s;
-    text-transform: uppercase;
-  }
-
-  .filter-btn:hover, .filter-btn.active {
-    background: var(--gold-subtle);
-    border-color: var(--gold-dim);
-    color: var(--gold);
-  }
-
-  .view-btn {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    color: var(--text-muted);
-    font-family: 'DM Mono', monospace;
-    font-size: 11px;
-    padding: 8px 12px;
-    cursor: pointer;
-    transition: all 0.15s;
-  }
-
-  .view-btn.active, .view-btn:hover {
-    background: var(--gold-subtle);
-    border-color: var(--gold-dim);
-    color: var(--gold);
-  }
-
-  .add-btn {
-    background: var(--gold-subtle);
-    border: 1px solid var(--gold-dim);
-    color: var(--gold);
-    font-family: 'DM Mono', monospace;
-    font-size: 11px;
-    padding: 8px 16px;
-    cursor: pointer;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    transition: all 0.15s;
-    margin-left: auto;
-  }
-
-  .add-btn:hover {
-    background: var(--gold);
-    color: var(--bg);
-  }
-
-  .main {
-    padding: 24px 40px 60px;
-  }
-
-  /* TABLE VIEW */
-  .table-view { display: block; }
-  .grid-view { display: none; }
-
-  .section-header {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin: 28px 0 10px;
-  }
-
-  .section-label {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 22px;
-    font-weight: 300;
-    letter-spacing: 0.06em;
-  }
-
-  .section-line {
-    flex: 1;
-    height: 1px;
-    background: var(--border);
-  }
-
-  .section-meta {
-    color: var(--text-muted);
-    font-size: 10px;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-  }
-
-  .table-wrap {
-    width: 100%;
-  }
-
-  table {
-    width: 100%;
-    border-collapse: collapse;
-  }
-
-  @media (max-width: 768px) {
-    .col-label, .col-vintage, .col-region { display: none; }
-    .main { padding: 16px 12px 40px; }
-  }
-
-  th {
-    text-align: left;
-    font-size: 10px;
-    letter-spacing: 0.15em;
-    text-transform: uppercase;
-    color: var(--text-muted);
-    padding: 6px 10px;
-    border-bottom: 1px solid var(--border);
-    cursor: pointer;
-    white-space: nowrap;
-    user-select: none;
-  }
-
-  th:hover { color: var(--gold); }
-
-  td {
-    padding: 9px 10px;
-    border-bottom: 1px solid var(--border);
-    color: var(--text);
-    vertical-align: middle;
-  }
-
-  tr:hover td { background: rgba(201,168,76,0.04); }
-
-  .slot-badge {
-    display: inline-block;
-    font-size: 10px;
-    letter-spacing: 0.08em;
-    padding: 2px 7px;
-    font-weight: 400;
-    border: 1px solid;
-    white-space: nowrap;
-  }
-
-  .producer { color: var(--text); font-weight: 400; }
-  .label { color: var(--text-dim); font-size: 12px; }
-  .vintage { color: var(--gold-dim); font-family: 'Cormorant Garamond', serif; font-size: 15px; }
-  .region { color: var(--text-muted); font-size: 11px; }
-
-  .value {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 16px;
-    font-weight: 300;
-    color: var(--gold);
-    text-align: right;
-    white-space: nowrap;
-  }
-
-  .qty-badge {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 22px;
-    height: 22px;
-    background: var(--gold-subtle);
-    border: 1px solid var(--gold-dim);
-    color: var(--gold);
-    font-size: 10px;
-    font-weight: 400;
-  }
-
-  .actions {
-    display: flex;
-    gap: 6px;
-    justify-content: flex-end;
-  }
-
-  .btn-sm {
-    background: none;
-    border: 1px solid var(--border);
-    color: var(--text-muted);
-    font-family: 'DM Mono', monospace;
-    font-size: 10px;
-    padding: 3px 8px;
-    cursor: pointer;
-    transition: all 0.15s;
-    letter-spacing: 0.06em;
-  }
-
-  .btn-sm:hover { border-color: var(--gold-dim); color: var(--gold); }
-
-  .btn-sm.consume:hover { border-color: #c46b6b; color: #c46b6b; }
-  .btn-sm.edit-btn:hover { border-color: var(--gold-dim); color: var(--gold); }
-
-  /* GRID VIEW */
-  .grid-container {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-    gap: 10px;
-  }
-
-  .wine-card {
-    background: var(--card);
-    border: 1px solid var(--border);
-    padding: 14px;
-    transition: border-color 0.2s, transform 0.15s;
-    cursor: pointer;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .wine-card::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0; right: 0;
-    height: 2px;
-  }
-
-  .wine-card:hover {
-    border-color: var(--gold-dim);
-    transform: translateY(-1px);
-  }
-
-  .card-slot {
-    font-size: 9px;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    margin-bottom: 8px;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-  }
-
-  .card-producer {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 16px;
-    font-weight: 400;
-    color: var(--text);
-    line-height: 1.2;
-    margin-bottom: 3px;
-  }
-
-  .card-label {
-    font-size: 10px;
-    color: var(--text-dim);
-    margin-bottom: 10px;
-    line-height: 1.3;
-  }
-
-  .card-footer {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-end;
-    margin-top: 8px;
-  }
-
-  .card-vintage {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 18px;
-    color: var(--gold-dim);
-    font-weight: 300;
-  }
-
-  .card-value {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 16px;
-    color: var(--gold);
-    font-weight: 300;
-  }
-
-  /* MODAL */
-  .modal-overlay {
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.85);
-    z-index: 500;
-    align-items: center;
-    justify-content: center;
-    padding: 20px;
-  }
-
-  .modal-overlay.open { display: flex; }
-
-  .modal {
-    background: var(--card);
-    border: 1px solid var(--border-light);
-    width: 100%;
-    max-width: 520px;
-    padding: 32px;
-    position: relative;
-    max-height: 90vh;
-    overflow-y: auto;
-  }
-
-  .modal h2 {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 26px;
-    font-weight: 300;
-    color: var(--gold);
-    margin-bottom: 24px;
-    letter-spacing: 0.04em;
-  }
-
-  .modal-close {
-    position: absolute;
-    top: 16px; right: 16px;
-    background: none;
-    border: none;
-    color: var(--text-muted);
-    font-size: 18px;
-    cursor: pointer;
-    padding: 4px 8px;
-  }
-
-  .modal-close:hover { color: var(--text); }
-
-  .form-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 14px;
-    margin-bottom: 14px;
-  }
-
-  .form-group {
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
-    margin-bottom: 14px;
-  }
-
-  .form-group label {
-    font-size: 10px;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    color: var(--text-muted);
-  }
-
-  .form-group input, .form-group select {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    color: var(--text);
-    font-family: 'DM Mono', monospace;
-    font-size: 12px;
-    padding: 9px 12px;
-    outline: none;
-    transition: border-color 0.2s;
-    width: 100%;
-  }
-
-  .form-group input:focus, .form-group select:focus {
-    border-color: var(--gold-dim);
-  }
-
-  .form-group select option { background: var(--card); }
-
-  .modal-footer {
-    display: flex;
-    gap: 10px;
-    justify-content: flex-end;
-    margin-top: 24px;
-    padding-top: 20px;
-    border-top: 1px solid var(--border);
-  }
-
-  .btn-cancel {
-    background: none;
-    border: 1px solid var(--border);
-    color: var(--text-dim);
-    font-family: 'DM Mono', monospace;
-    font-size: 11px;
-    padding: 9px 20px;
-    cursor: pointer;
-    letter-spacing: 0.08em;
-    transition: all 0.15s;
-  }
-
-  .btn-cancel:hover { border-color: var(--border-light); color: var(--text); }
-
-  .btn-save {
-    background: var(--gold-subtle);
-    border: 1px solid var(--gold-dim);
-    color: var(--gold);
-    font-family: 'DM Mono', monospace;
-    font-size: 11px;
-    padding: 9px 24px;
-    cursor: pointer;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    transition: all 0.15s;
-  }
-
-  .btn-save:hover { background: var(--gold); color: var(--bg); }
-
-  .btn-delete {
-    background: none;
-    border: 1px solid #5a2020;
-    color: #9a4040;
-    font-family: 'DM Mono', monospace;
-    font-size: 11px;
-    padding: 9px 16px;
-    cursor: pointer;
-    letter-spacing: 0.08em;
-    transition: all 0.15s;
-    margin-right: auto;
-  }
-
-  .btn-delete:hover { background: #3a1010; border-color: #9a4040; color: #c46b6b; }
-
-  .empty-row td {
-    text-align: center;
-    color: var(--text-muted);
-    padding: 28px;
-    font-style: italic;
-  }
-
-  .row-color-dot {
-    width: 6px; height: 6px;
-    border-radius: 50%;
-    display: inline-block;
-  }
-
-  /* Toast */
-  .toast {
-    position: fixed;
-    bottom: 28px;
-    right: 28px;
-    background: var(--card);
-    border: 1px solid var(--gold-dim);
-    color: var(--gold);
-    font-family: 'DM Mono', monospace;
-    font-size: 11px;
-    padding: 12px 20px;
-    letter-spacing: 0.08em;
-    z-index: 999;
-    opacity: 0;
-    transform: translateY(10px);
-    transition: all 0.25s;
-    pointer-events: none;
-  }
-
-  .toast.show { opacity: 1; transform: translateY(0); }
-
-  /* Sort indicator */
-  .sort-asc::after { content: ' ↑'; color: var(--gold); }
-  .sort-desc::after { content: ' ↓'; color: var(--gold); }
-
-  @media (max-width: 700px) {
-    .header, .toolbar, .main { padding-left: 16px; padding-right: 16px; }
-    .form-row { grid-template-columns: 1fr; }
-    .stats { gap: 18px; }
-  }
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Wine Cellar Registry</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0d0a08;
+      --surface: #141009;
+      --card: #1a1410;
+      --border: #2a2018;
+      --border-light: #3a3025;
+      --gold: #c9a84c;
+      --gold-dim: #8a6e30;
+      --gold-subtle: #3d2e12;
+      --text: #e8dcc8;
+      --text-dim: #9a8a72;
+      --text-muted: #5a4e3e;
+      --red-wine: #7a1e2e;
+      --row-a: #c9a84c;
+      --row-b: #6db87a;
+      --row-c: #5ba8d4;
+      --row-d: #e07856;
+      --row-e: #c46bb8;
+      --row-f: #d4b84a;
+      --row-g: #78c4b2;
+      --row-h: #e8845c;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'DM Mono', monospace;
+      font-size: 13px;
+      min-height: 100vh;
+    }
+    /* Grain overlay */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 1000;
+      opacity: 0.4;
+    }
+    .header {
+      border-bottom: 1px solid var(--border);
+      padding: 32px 40px 24px;
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 24px;
+      flex-wrap: wrap;
+    }
+    .header-left h1 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 42px;
+      font-weight: 300;
+      color: var(--gold);
+      letter-spacing: 0.04em;
+      line-height: 1;
+    }
+    .header-left p {
+      color: var(--text-dim);
+      margin-top: 6px;
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+    .stats { display: flex; gap: 32px; flex-wrap: wrap; }
+    .stat { text-align: right; }
+    .stat-val {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 28px;
+      font-weight: 300;
+      color: var(--gold);
+      line-height: 1;
+    }
+    .stat-label {
+      color: var(--text-muted);
+      font-size: 10px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      margin-top: 3px;
+    }
+    .toolbar {
+      padding: 16px 40px;
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      border-bottom: 1px solid var(--border);
+      flex-wrap: wrap;
+    }
+    .search-wrap {
+      position: relative;
+      flex: 1;
+      min-width: 200px;
+      max-width: 340px;
+    }
+    .search-wrap input {
+      width: 100%;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text);
+      font-family: 'DM Mono', monospace;
+      font-size: 12px;
+      padding: 8px 12px 8px 32px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .search-wrap input:focus { border-color: var(--gold-dim); }
+    .search-wrap input::placeholder { color: var(--text-muted); }
+    .search-icon {
+      position: absolute;
+      left: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-muted);
+      font-size: 12px;
+      pointer-events: none;
+    }
+    .filter-btn {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text-dim);
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      padding: 8px 14px;
+      cursor: pointer;
+      letter-spacing: 0.06em;
+      transition: all 0.15s;
+      text-transform: uppercase;
+    }
+    .filter-btn:hover, .filter-btn.active {
+      background: var(--gold-subtle);
+      border-color: var(--gold-dim);
+      color: var(--gold);
+    }
+    .view-btn {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      padding: 8px 12px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .view-btn.active, .view-btn:hover {
+      background: var(--gold-subtle);
+      border-color: var(--gold-dim);
+      color: var(--gold);
+    }
+    .add-btn {
+      background: var(--gold-subtle);
+      border: 1px solid var(--gold-dim);
+      color: var(--gold);
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      padding: 8px 16px;
+      cursor: pointer;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      transition: all 0.15s;
+      margin-left: auto;
+    }
+    .add-btn:hover { background: var(--gold); color: var(--bg); }
+    .main { padding: 24px 40px 60px; }
+
+    /* TABLE VIEW */
+    .table-view { display: block; }
+    .grid-view { display: none; }
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin: 28px 0 10px;
+    }
+    .section-label {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 22px;
+      font-weight: 300;
+      letter-spacing: 0.06em;
+    }
+    .section-line { flex: 1; height: 1px; background: var(--border); }
+    .section-meta {
+      color: var(--text-muted);
+      font-size: 10px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+    .table-wrap { width: 100%; }
+    table { width: 100%; border-collapse: collapse; }
+
+    /* Fixed column widths — keeps all row tables aligned */
+    .table-wrap table {
+      table-layout: fixed;
+      width: 100%;
+    }
+    .table-wrap table th:nth-child(1),
+    .table-wrap table td:nth-child(1) { width: 90px; }
+    .table-wrap table th:nth-child(2),
+    .table-wrap table td:nth-child(2) { width: 52px; }
+    .table-wrap table th:nth-child(3),
+    .table-wrap table td:nth-child(3) { width: 180px; }
+    .table-wrap table th:nth-child(4),
+    .table-wrap table td:nth-child(4) { width: auto; }
+    .table-wrap table th:nth-child(5),
+    .table-wrap table td:nth-child(5) { width: 80px; }
+    .table-wrap table th:nth-child(6),
+    .table-wrap table td:nth-child(6) { width: 130px; }
+    .table-wrap table th:nth-child(7),
+    .table-wrap table td:nth-child(7) { width: 75px; text-align: right; }
+    .table-wrap table th:nth-child(8),
+    .table-wrap table td:nth-child(8) { width: 105px; }
+    .table-wrap table td { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+    @media (max-width: 768px) {
+      .col-label, .col-vintage, .col-region { display: none; }
+      .main { padding: 16px 12px 40px; }
+    }
+    th {
+      text-align: left;
+      font-size: 10px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      padding: 6px 10px;
+      border-bottom: 1px solid var(--border);
+      cursor: pointer;
+      white-space: nowrap;
+      user-select: none;
+    }
+    th:hover { color: var(--gold); }
+    td {
+      padding: 9px 10px;
+      border-bottom: 1px solid var(--border);
+      color: var(--text);
+      vertical-align: middle;
+    }
+    tr:hover td { background: rgba(201,168,76,0.04); }
+    .slot-badge {
+      display: inline-block;
+      font-size: 10px;
+      letter-spacing: 0.08em;
+      padding: 2px 7px;
+      font-weight: 400;
+      border: 1px solid;
+      white-space: nowrap;
+    }
+    .producer { color: var(--text); font-weight: 400; }
+    .label { color: var(--text-dim); font-size: 12px; }
+    .vintage { color: var(--gold-dim); font-family: 'Cormorant Garamond', serif; font-size: 15px; }
+    .region { color: var(--text-muted); font-size: 11px; }
+    .value {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 16px;
+      font-weight: 300;
+      color: var(--gold);
+      text-align: right;
+      white-space: nowrap;
+    }
+    .qty-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 22px;
+      height: 22px;
+      background: var(--gold-subtle);
+      border: 1px solid var(--gold-dim);
+      color: var(--gold);
+      font-size: 10px;
+      font-weight: 400;
+    }
+    .actions { display: flex; gap: 6px; justify-content: flex-end; }
+    .btn-sm {
+      background: none;
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      padding: 3px 8px;
+      cursor: pointer;
+      transition: all 0.15s;
+      letter-spacing: 0.06em;
+    }
+    .btn-sm:hover { border-color: var(--gold-dim); color: var(--gold); }
+    .btn-sm.consume:hover { border-color: #c46b6b; color: #c46b6b; }
+    .btn-sm.edit-btn:hover { border-color: var(--gold-dim); color: var(--gold); }
+
+    /* GRID VIEW */
+    .grid-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 10px;
+    }
+    .wine-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      padding: 14px;
+      transition: border-color 0.2s, transform 0.15s;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+    }
+    .wine-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; }
+    .wine-card:hover { border-color: var(--gold-dim); transform: translateY(-1px); }
+    .card-slot {
+      font-size: 9px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .card-producer {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 16px;
+      font-weight: 400;
+      color: var(--text);
+      line-height: 1.2;
+      margin-bottom: 3px;
+    }
+    .card-label { font-size: 10px; color: var(--text-dim); margin-bottom: 10px; line-height: 1.3; }
+    .card-footer { display: flex; justify-content: space-between; align-items: flex-end; margin-top: 8px; }
+    .card-vintage { font-family: 'Cormorant Garamond', serif; font-size: 18px; color: var(--gold-dim); font-weight: 300; }
+    .card-value { font-family: 'Cormorant Garamond', serif; font-size: 16px; color: var(--gold); font-weight: 300; }
+
+    /* MODAL */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.85);
+      z-index: 500;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal {
+      background: var(--card);
+      border: 1px solid var(--border-light);
+      width: 100%;
+      max-width: 520px;
+      padding: 32px;
+      position: relative;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+    .modal h2 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 26px;
+      font-weight: 300;
+      color: var(--gold);
+      margin-bottom: 24px;
+      letter-spacing: 0.04em;
+    }
+    .modal-close {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      font-size: 18px;
+      cursor: pointer;
+      padding: 4px 8px;
+    }
+    .modal-close:hover { color: var(--text); }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; }
+    .form-group { display: flex; flex-direction: column; gap: 5px; margin-bottom: 14px; }
+    .form-group label {
+      font-size: 10px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+    .form-group input, .form-group select {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text);
+      font-family: 'DM Mono', monospace;
+      font-size: 12px;
+      padding: 9px 12px;
+      outline: none;
+      transition: border-color 0.2s;
+      width: 100%;
+    }
+    .form-group input:focus, .form-group select:focus { border-color: var(--gold-dim); }
+    .form-group select option { background: var(--card); }
+    .modal-footer {
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+      margin-top: 24px;
+      padding-top: 20px;
+      border-top: 1px solid var(--border);
+    }
+    .btn-cancel {
+      background: none;
+      border: 1px solid var(--border);
+      color: var(--text-dim);
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      padding: 9px 20px;
+      cursor: pointer;
+      letter-spacing: 0.08em;
+      transition: all 0.15s;
+    }
+    .btn-cancel:hover { border-color: var(--border-light); color: var(--text); }
+    .btn-save {
+      background: var(--gold-subtle);
+      border: 1px solid var(--gold-dim);
+      color: var(--gold);
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      padding: 9px 24px;
+      cursor: pointer;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      transition: all 0.15s;
+    }
+    .btn-save:hover { background: var(--gold); color: var(--bg); }
+    .btn-delete {
+      background: none;
+      border: 1px solid #5a2020;
+      color: #9a4040;
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      padding: 9px 16px;
+      cursor: pointer;
+      letter-spacing: 0.08em;
+      transition: all 0.15s;
+      margin-right: auto;
+    }
+    .btn-delete:hover { background: #3a1010; border-color: #9a4040; color: #c46b6b; }
+    .empty-row td { text-align: center; color: var(--text-muted); padding: 28px; font-style: italic; }
+    .row-color-dot { width: 6px; height: 6px; border-radius: 50%; display: inline-block; }
+
+    /* Toast */
+    .toast {
+      position: fixed;
+      bottom: 28px;
+      right: 28px;
+      background: var(--card);
+      border: 1px solid var(--gold-dim);
+      color: var(--gold);
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      padding: 12px 20px;
+      letter-spacing: 0.08em;
+      z-index: 999;
+      opacity: 0;
+      transform: translateY(10px);
+      transition: all 0.25s;
+      pointer-events: none;
+    }
+    .toast.show { opacity: 1; transform: translateY(0); }
+
+    /* Sort indicator */
+    .sort-asc::after { content: ' ↑'; color: var(--gold); }
+    .sort-desc::after { content: ' ↓'; color: var(--gold); }
+
+    @media (max-width: 700px) {
+      .header, .toolbar, .main { padding-left: 16px; padding-right: 16px; }
+      .form-row { grid-template-columns: 1fr; }
+      .stats { gap: 18px; }
+    }
+  </style>
 </head>
 <body>
 
@@ -692,387 +573,375 @@
 <div class="toast" id="toast"></div>
 
 <script type="module">
-import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js';
-import { getDatabase, ref, set, onValue } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js';
+  import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js';
+  import { getDatabase, ref, set, onValue } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js';
 
-const firebaseConfig = { databaseURL: 'https://brian-wine-fridge-tracking-app-default-rtdb.firebaseio.com/' };
-const app = initializeApp(firebaseConfig);
-const db = getDatabase(app);
-const inventoryRef = ref(db, 'inventory');
+  const firebaseConfig = { databaseURL: 'https://brian-wine-fridge-tracking-app-default-rtdb.firebaseio.com/' };
+  const app = initializeApp(firebaseConfig);
+  const db = getDatabase(app);
+  const inventoryRef = ref(db, 'inventory');
 
-document.getElementById('table-view').innerHTML = '<div style="text-align:center;color:var(--text-muted);padding:60px;font-family:Cormorant Garamond,serif;font-size:20px;font-style:italic">Loading cellar...</div>';
+  document.getElementById('table-view').innerHTML = '<div style="text-align:center;color:var(--text-muted);padding:60px;font-family:Cormorant Garamond,serif;font-size:20px;font-style:italic">Loading cellar...</div>';
 
-const ROW_COLORS = {
-  A: '#c9a84c', B: '#6db87a', C: '#5ba8d4',
-  D: '#e07856', E: '#c46bb8', F: '#d4b84a',
-  G: '#78c4b2', H: '#e8845c'
-};
+  const ROW_COLORS = { A: '#c9a84c', B: '#6db87a', C: '#5ba8d4', D: '#e07856', E: '#c46bb8', F: '#d4b84a', G: '#78c4b2', H: '#e8845c' };
 
-const STORAGE_KEY = 'wine_cellar_v1';
+  const SEED_DATA = [
+    {id:1, slot:'A1–A2', qty:2, producer:'PlumpJack', label:'Estate', vintage:'2019', region:'Oakville', value:195.00, notes:''},
+    {id:2, slot:'A3', qty:1, producer:'Ch. Rauzan-Ségla', label:'Grand Cru Classé', vintage:'2019', region:'Margaux', value:175.00, notes:''},
+    {id:3, slot:'A4', qty:1, producer:'Silver Oak', label:'Napa Valley', vintage:'2019', region:'Napa Valley', value:185.00, notes:''},
+    {id:4, slot:'A5', qty:1, producer:'DAOU', label:'Soul of a Lion', vintage:'2021', region:'Paso Robles', value:150.00, notes:''},
+    {id:5, slot:'A6', qty:1, producer:'Cade', label:'Estate (Black Top)', vintage:'2019', region:'Howell Mtn', value:155.00, notes:''},
+    {id:6, slot:'A7', qty:1, producer:'Goldschmidt', label:'Plus (Single Vyd)', vintage:'2021', region:'Oakville', value:150.00, notes:''},
+    {id:7, slot:'A8–A9', qty:2, producer:'Double Diamond', label:'Schrader Cellars', vintage:'2021', region:'Oakville', value:95.00, notes:''},
+    {id:8, slot:'A10', qty:1, producer:'Hall', label:"Ellie's", vintage:'2021', region:'Napa Valley', value:90.00, notes:''},
+    {id:9, slot:'A11', qty:1, producer:'Hall', label:'1873', vintage:'2021', region:'Rutherford', value:90.00, notes:''},
+    {id:10, slot:'A12', qty:1, producer:'Goldschmidt', label:'Yoeman', vintage:'2021', region:'Alexander Vly', value:100.00, notes:''},
+    {id:11, slot:'B1–B2', qty:2, producer:'Austin Hope', label:'Cabernet Sauvignon', vintage:'2023', region:'Paso Robles', value:65.00, notes:''},
+    {id:12, slot:'B3', qty:1, producer:'Ch. Montelena', label:'Napa Valley Cab', vintage:'2017', region:'Napa Valley', value:90.00, notes:''},
+    {id:13, slot:'B4–B6', qty:3, producer:'Ch. Montelena', label:'Napa Valley Cab', vintage:'2022', region:'Napa Valley', value:85.00, notes:''},
+    {id:14, slot:'B7', qty:1, producer:'Jett', label:'Cabernet Sauvignon', vintage:'2022', region:'Walla Walla', value:90.00, notes:''},
+    {id:15, slot:'B8', qty:1, producer:'Amici', label:'Napa Valley Cab', vintage:'2022', region:'Napa Valley', value:55.00, notes:''},
+    {id:16, slot:'B9', qty:1, producer:'Joseph Phelps', label:'Cabernet Sauvignon', vintage:'2021', region:'Napa Valley', value:100.00, notes:''},
+    {id:17, slot:'C1', qty:1, producer:'Chimney Rock', label:'Estate', vintage:'2022', region:'Stags Leap', value:110.00, notes:''},
+    {id:18, slot:'C2–C10', qty:9, producer:'Chimney Rock', label:'Estate', vintage:'2021', region:'Stags Leap', value:100.00, notes:''},
+    {id:19, slot:'D1–D3', qty:3, producer:'Chimney Rock', label:'Estate', vintage:'2022', region:'Stags Leap', value:110.00, notes:''},
+    {id:20, slot:'D4–D6', qty:3, producer:"Stag's Leap WC", label:'Artemis', vintage:'2021', region:'Napa Valley', value:85.00, notes:''},
+    {id:21, slot:'D7–D9', qty:3, producer:'Goldschmidt', label:'Hilary (Charming Crk)', vintage:'2022', region:'Oakville', value:65.00, notes:''},
+    {id:22, slot:'D10', qty:1, producer:'Trefethen', label:'Estate Cabernet', vintage:'2021', region:'Oak Knoll', value:65.00, notes:''},
+    {id:23, slot:'D11', qty:1, producer:"Stag's Leap WC", label:'Artemis', vintage:'2021', region:'Napa Valley', value:85.00, notes:''},
+    {id:24, slot:'E1–E4', qty:4, producer:'Duckhorn', label:'Cabernet Sauvignon', vintage:'2022', region:'Napa Valley', value:85.00, notes:''},
+    {id:25, slot:'E5–E11', qty:7, producer:'Duckhorn', label:'Cabernet Sauvignon', vintage:'2021', region:'Napa Valley', value:80.00, notes:''},
+    {id:26, slot:'F1–F2', qty:2, producer:'Bella Union', label:'Cabernet Sauvignon', vintage:'2022', region:'Napa Valley', value:75.00, notes:''},
+    {id:27, slot:'F3–F8', qty:6, producer:'Post & Beam', label:'Cabernet Sauvignon', vintage:'2022', region:'Napa Valley', value:55.00, notes:''},
+    {id:28, slot:'F9–F10', qty:2, producer:'Ch. Grand Pontet', label:'Grand Cru Classé', vintage:'2010', region:'St-Émilion', value:95.00, notes:''},
+    {id:29, slot:'G1–G11', qty:11, producer:'Faust', label:'Cabernet Sauvignon', vintage:'2022', region:'Napa Valley', value:60.00, notes:''},
+    {id:30, slot:'H1–H2', qty:2, producer:'Frank Family', label:'Cabernet Sauvignon', vintage:'2021', region:'Napa Valley', value:60.00, notes:''},
+    {id:31, slot:'H3', qty:1, producer:'Ch. Le Roc', label:'Bordeaux', vintage:'2022', region:'Bordeaux', value:35.00, notes:''},
+    {id:32, slot:'H4', qty:1, producer:'Ch. Laplagnotte', label:'St-Émilion GC', vintage:'2021', region:'St-Émilion', value:45.00, notes:''},
+    {id:33, slot:'H5–H6', qty:2, producer:'Ch. Faizeau', label:'Montagne St-Émilion', vintage:'2020', region:'St-Émilion', value:40.00, notes:''},
+    {id:34, slot:'H7,H12', qty:2, producer:'Ch. Cantelys', label:'Pessac-Léognan', vintage:'2018', region:'Bordeaux', value:45.00, notes:''},
+    {id:35, slot:'H8', qty:1, producer:'Ch. Preuillac', label:'Médoc', vintage:'2018', region:'Bordeaux', value:40.00, notes:''},
+    {id:36, slot:'H9', qty:1, producer:'Ch. de Lamarque', label:'Haut-Médoc', vintage:'2017', region:'Bordeaux', value:45.00, notes:''},
+    {id:37, slot:'H10–H11', qty:2, producer:'Ch. La Cardonne', label:'Médoc', vintage:'2018', region:'Bordeaux', value:35.00, notes:''},
+    {id:38, slot:'H13', qty:1, producer:'Ch. Laroque', label:'Grand Cru Classé', vintage:'2014', region:'St-Émilion', value:75.00, notes:''},
+    {id:39, slot:'H14', qty:1, producer:'Dry Creek Vyd', label:'Cabernet Sauvignon', vintage:'2021', region:'Dry Creek', value:35.00, notes:''},
+    {id:40, slot:'H15–H17', qty:3, producer:'Goldschmidt', label:'Katherine', vintage:'2021', region:'Alexander Vly', value:40.00, notes:''},
+    {id:41, slot:'H18', qty:1, producer:'Leviathan', label:'Red Blend', vintage:'2021', region:'California', value:40.00, notes:''},
+    {id:42, slot:'H19', qty:1, producer:'Milk & Honey', label:'Red Blend', vintage:'NV', region:'Paso Robles', value:35.00, notes:''},
+    {id:43, slot:'H20', qty:1, producer:'Montes Alpha M', label:'Red Blend', vintage:'2019', region:'Colchagua', value:100.00, notes:''},
+    {id:44, slot:'H21–H22', qty:2, producer:'Stonestreet', label:'Estate Cabernet', vintage:'2019', region:'Alexander Vly', value:55.00, notes:''},
+  ];
 
-const SEED_DATA = [
-  {id:1,  slot:'A1–A2',  qty:2, producer:'PlumpJack',       label:'Estate',               vintage:'2019', region:'Oakville',       value:195.00, notes:''},
-  {id:2,  slot:'A3',     qty:1, producer:'Ch. Rauzan-Ségla', label:'Grand Cru Classé',    vintage:'2019', region:'Margaux',        value:175.00, notes:''},
-  {id:3,  slot:'A4',     qty:1, producer:'Silver Oak',       label:'Napa Valley',          vintage:'2019', region:'Napa Valley',    value:185.00, notes:''},
-  {id:4,  slot:'A5',     qty:1, producer:'DAOU',             label:'Soul of a Lion',       vintage:'2021', region:'Paso Robles',    value:150.00, notes:''},
-  {id:5,  slot:'A6',     qty:1, producer:'Cade',             label:'Estate (Black Top)',   vintage:'2019', region:'Howell Mtn',     value:155.00, notes:''},
-  {id:6,  slot:'A7',     qty:1, producer:'Goldschmidt',      label:'Plus (Single Vyd)',    vintage:'2021', region:'Oakville',       value:150.00, notes:''},
-  {id:7,  slot:'A8–A9',  qty:2, producer:'Double Diamond',   label:'Schrader Cellars',     vintage:'2021', region:'Oakville',       value:95.00,  notes:''},
-  {id:8,  slot:'A10',    qty:1, producer:'Hall',             label:"Ellie's",              vintage:'2021', region:'Napa Valley',    value:90.00,  notes:''},
-  {id:9,  slot:'A11',    qty:1, producer:'Hall',             label:'1873',                 vintage:'2021', region:'Rutherford',     value:90.00,  notes:''},
-  {id:10, slot:'A12',    qty:1, producer:'Goldschmidt',      label:'Yoeman',               vintage:'2021', region:'Alexander Vly',  value:100.00, notes:''},
-  {id:11, slot:'B1–B2',  qty:2, producer:'Austin Hope',      label:'Cabernet Sauvignon',   vintage:'2023', region:'Paso Robles',    value:65.00,  notes:''},
-  {id:12, slot:'B3',     qty:1, producer:'Ch. Montelena',    label:'Napa Valley Cab',      vintage:'2017', region:'Napa Valley',    value:90.00,  notes:''},
-  {id:13, slot:'B4–B6',  qty:3, producer:'Ch. Montelena',    label:'Napa Valley Cab',      vintage:'2022', region:'Napa Valley',    value:85.00,  notes:''},
-  {id:14, slot:'B7',     qty:1, producer:'Jett',             label:'Cabernet Sauvignon',   vintage:'2022', region:'Walla Walla',    value:90.00,  notes:''},
-  {id:15, slot:'B8',     qty:1, producer:'Amici',            label:'Napa Valley Cab',      vintage:'2022', region:'Napa Valley',    value:55.00,  notes:''},
-  {id:16, slot:'B9',     qty:1, producer:'Joseph Phelps',    label:'Cabernet Sauvignon',   vintage:'2021', region:'Napa Valley',    value:100.00, notes:''},
-  {id:17, slot:'C1',     qty:1, producer:'Chimney Rock',     label:'Estate',               vintage:'2022', region:'Stags Leap',     value:110.00, notes:''},
-  {id:18, slot:'C2–C10', qty:9, producer:'Chimney Rock',     label:'Estate',               vintage:'2021', region:'Stags Leap',     value:100.00, notes:''},
-  {id:19, slot:'D1–D3',  qty:3, producer:'Chimney Rock',     label:'Estate',               vintage:'2022', region:'Stags Leap',     value:110.00, notes:''},
-  {id:20, slot:'D4–D6',  qty:3, producer:"Stag's Leap WC",   label:'Artemis',              vintage:'2021', region:'Napa Valley',    value:85.00,  notes:''},
-  {id:21, slot:'D7–D9',  qty:3, producer:'Goldschmidt',      label:'Hilary (Charming Crk)', vintage:'2022', region:'Oakville',      value:65.00,  notes:''},
-  {id:22, slot:'D10',    qty:1, producer:'Trefethen',        label:'Estate Cabernet',      vintage:'2021', region:'Oak Knoll',      value:65.00,  notes:''},
-  {id:23, slot:'D11',    qty:1, producer:"Stag's Leap WC",   label:'Artemis',              vintage:'2021', region:'Napa Valley',    value:85.00,  notes:''},
-  {id:24, slot:'E1–E4',  qty:4, producer:'Duckhorn',         label:'Cabernet Sauvignon',   vintage:'2022', region:'Napa Valley',    value:85.00,  notes:''},
-  {id:25, slot:'E5–E11', qty:7, producer:'Duckhorn',         label:'Cabernet Sauvignon',   vintage:'2021', region:'Napa Valley',    value:80.00,  notes:''},
-  {id:26, slot:'F1–F2',  qty:2, producer:'Bella Union',      label:'Cabernet Sauvignon',   vintage:'2022', region:'Napa Valley',    value:75.00,  notes:''},
-  {id:27, slot:'F3–F8',  qty:6, producer:'Post & Beam',      label:'Cabernet Sauvignon',   vintage:'2022', region:'Napa Valley',    value:55.00,  notes:''},
-  {id:28, slot:'F9–F10', qty:2, producer:'Ch. Grand Pontet', label:'Grand Cru Classé',     vintage:'2010', region:'St-Émilion',     value:95.00,  notes:''},
-  {id:29, slot:'G1–G11', qty:11,producer:'Faust',            label:'Cabernet Sauvignon',   vintage:'2022', region:'Napa Valley',    value:60.00,  notes:''},
-  {id:30, slot:'H1–H2',  qty:2, producer:'Frank Family',     label:'Cabernet Sauvignon',   vintage:'2021', region:'Napa Valley',    value:60.00,  notes:''},
-  {id:31, slot:'H3',     qty:1, producer:'Ch. Le Roc',       label:'Bordeaux',             vintage:'2022', region:'Bordeaux',       value:35.00,  notes:''},
-  {id:32, slot:'H4',     qty:1, producer:'Ch. Laplagnotte',  label:'St-Émilion GC',        vintage:'2021', region:'St-Émilion',     value:45.00,  notes:''},
-  {id:33, slot:'H5–H6',  qty:2, producer:'Ch. Faizeau',      label:'Montagne St-Émilion',  vintage:'2020', region:'St-Émilion',     value:40.00,  notes:''},
-  {id:34, slot:'H7,H12', qty:2, producer:'Ch. Cantelys',     label:'Pessac-Léognan',       vintage:'2018', region:'Bordeaux',       value:45.00,  notes:''},
-  {id:35, slot:'H8',     qty:1, producer:'Ch. Preuillac',    label:'Médoc',                vintage:'2018', region:'Bordeaux',       value:40.00,  notes:''},
-  {id:36, slot:'H9',     qty:1, producer:'Ch. de Lamarque',  label:'Haut-Médoc',           vintage:'2017', region:'Bordeaux',       value:45.00,  notes:''},
-  {id:37, slot:'H10–H11',qty:2, producer:'Ch. La Cardonne',  label:'Médoc',                vintage:'2018', region:'Bordeaux',       value:35.00,  notes:''},
-  {id:38, slot:'H13',    qty:1, producer:'Ch. Laroque',      label:'Grand Cru Classé',     vintage:'2014', region:'St-Émilion',     value:75.00,  notes:''},
-  {id:39, slot:'H14',    qty:1, producer:'Dry Creek Vyd',    label:'Cabernet Sauvignon',   vintage:'2021', region:'Dry Creek',      value:35.00,  notes:''},
-  {id:40, slot:'H15–H17',qty:3, producer:'Goldschmidt',      label:'Katherine',            vintage:'2021', region:'Alexander Vly',  value:40.00,  notes:''},
-  {id:41, slot:'H18',    qty:1, producer:'Leviathan',        label:'Red Blend',            vintage:'2021', region:'California',     value:40.00,  notes:''},
-  {id:42, slot:'H19',    qty:1, producer:'Milk & Honey',     label:'Red Blend',            vintage:'NV',   region:'Paso Robles',    value:35.00,  notes:''},
-  {id:43, slot:'H20',    qty:1, producer:'Montes Alpha M',   label:'Red Blend',            vintage:'2019', region:'Colchagua',      value:100.00, notes:''},
-  {id:44, slot:'H21–H22',qty:2, producer:'Stonestreet',      label:'Estate Cabernet',      vintage:'2019', region:'Alexander Vly',  value:55.00,  notes:''},
-];
+  function saveToStorage() { set(inventoryRef, { inventory, nextId }).catch(e => console.warn('Firebase save failed', e)); }
 
-function saveToStorage() {
-  set(inventoryRef, { inventory, nextId }).catch(e => console.warn('Firebase save failed', e));
-}
-
-function resetToSeed() {
-  if (confirm('Reset to original inventory? All changes will be lost.')) {
-    inventory = JSON.parse(JSON.stringify(SEED_DATA));
-    nextId = 50;
-    saveToStorage();
-    render();
-    showToast('Inventory reset to original');
-  }
-}
-
-let currentFilter = 'all';
-let currentView = 'table';
-let searchTerm = '';
-let sortKey = 'slot';
-let sortDir = 'asc';
-let editingId = null;
-
-function getRowLetter(slot) {
-  return slot.charAt(0).toUpperCase();
-}
-
-function getFilteredData() {
-  let data = [...inventory];
-  if (currentFilter !== 'all') {
-    data = data.filter(e => getRowLetter(e.slot) === currentFilter);
-  }
-  if (searchTerm) {
-    const s = searchTerm.toLowerCase();
-    data = data.filter(e =>
-      e.producer.toLowerCase().includes(s) ||
-      e.label.toLowerCase().includes(s) ||
-      e.region.toLowerCase().includes(s) ||
-      e.vintage.toString().includes(s) ||
-      e.slot.toLowerCase().includes(s)
-    );
-  }
-  data.sort((a, b) => {
-    let va = a[sortKey], vb = b[sortKey];
-    if (sortKey === 'value') { va = parseFloat(va); vb = parseFloat(vb); }
-    if (sortKey === 'slot') {
-      const cmp = va.localeCompare(vb, undefined, { numeric: true, sensitivity: 'base' });
-      return sortDir === 'asc' ? cmp : -cmp;
+  function resetToSeed() {
+    if (confirm('Reset to original inventory? All changes will be lost.')) {
+      inventory = JSON.parse(JSON.stringify(SEED_DATA));
+      nextId = 50;
+      saveToStorage();
+      render();
+      showToast('Inventory reset to original');
     }
-    if (va < vb) return sortDir === 'asc' ? -1 : 1;
-    if (va > vb) return sortDir === 'asc' ? 1 : -1;
-    return 0;
-  });
-  return data;
-}
-
-function totalBottles(data) { return data.reduce((s, e) => s + e.qty, 0); }
-function totalValue(data) { return data.reduce((s, e) => s + e.value * e.qty, 0); }
-function uniqueProducers(data) { return new Set(data.map(e => e.producer)).size; }
-
-function updateStats() {
-  const data = getFilteredData();
-  document.getElementById('stat-bottles').textContent = totalBottles(data);
-  document.getElementById('stat-value').textContent = '$' + totalValue(data).toLocaleString(undefined, {minimumFractionDigits:0, maximumFractionDigits:0});
-  document.getElementById('stat-producers').textContent = uniqueProducers(data);
-}
-
-function groupByRow(data) {
-  const groups = {};
-  data.forEach(e => {
-    const r = getRowLetter(e.slot);
-    if (!groups[r]) groups[r] = [];
-    groups[r].push(e);
-  });
-  return groups;
-}
-
-function renderTable() {
-  const data = getFilteredData();
-  const groups = groupByRow(data);
-  const container = document.getElementById('table-view');
-
-  if (data.length === 0) {
-    container.innerHTML = '<div style="text-align:center;color:var(--text-muted);padding:60px;font-family:Cormorant Garamond,serif;font-size:20px;font-style:italic">No bottles found</div>';
-    return;
   }
 
-  let html = '';
-  const rowKeys = Object.keys(groups).sort();
+  let currentFilter = 'all';
+  let currentView = 'table';
+  let searchTerm = '';
+  let sortKey = 'slot';
+  let sortDir = 'asc';
+  let editingId = null;
 
-  rowKeys.forEach(row => {
-    const entries = groups[row];
-    const color = ROW_COLORS[row] || '#888';
-    const rowBottles = totalBottles(entries);
-    const rowVal = totalValue(entries);
+  function getRowLetter(slot) { return slot.charAt(0).toUpperCase(); }
 
-    html += `<div class="section-header">
-      <span class="section-label" style="color:${color}">Row ${row}</span>
-      <span class="section-line"></span>
-      <span class="section-meta">${rowBottles} btl · $${rowVal.toLocaleString(undefined,{minimumFractionDigits:0,maximumFractionDigits:0})}</span>
-    </div>`;
-
-    html += `<div class="table-wrap"><table><thead><tr>
-      <th onclick="setSort('slot')" class="${sortKey==='slot'?'sort-'+sortDir:''}">Slot</th>
-      <th>Qty</th>
-      <th onclick="setSort('producer')" class="${sortKey==='producer'?'sort-'+sortDir:''}">Producer</th>
-      <th class="col-label">Label</th>
-      <th class="col-vintage" onclick="setSort('vintage')" class="${sortKey==='vintage'?'sort-'+sortDir:''}">Vintage</th>
-      <th class="col-region" onclick="setSort('region')" class="${sortKey==='region'?'sort-'+sortDir:''}">Region</th>
-      <th onclick="setSort('value')" class="${sortKey==='value'?'sort-'+sortDir:''}" style="text-align:right">$/btl</th>
-      <th></th>
-    </tr></thead><tbody>`;
-
-    entries.forEach(e => {
-      const color2 = ROW_COLORS[row] || '#888';
-      html += `<tr>
-        <td><span class="slot-badge" style="color:${color2};border-color:${color2}40;background:${color2}12">${e.slot}</span></td>
-        <td><span class="qty-badge">${e.qty}</span></td>
-        <td class="producer">${e.producer}</td>
-        <td class="label col-label">${e.label}</td>
-        <td class="vintage col-vintage">${e.vintage}</td>
-        <td class="region col-region">${e.region}</td>
-        <td class="value">$${e.value.toFixed(0)}</td>
-        <td><div class="actions">
-          <button class="btn-sm edit-btn" onclick="openEdit(${e.id})">Edit</button>
-          <button class="btn-sm consume" onclick="consume(${e.id})">−1</button>
-        </div></td>
-      </tr>`;
+  function getFilteredData() {
+    let data = [...inventory];
+    if (currentFilter !== 'all') {
+      data = data.filter(e => getRowLetter(e.slot) === currentFilter);
+    }
+    if (searchTerm) {
+      const s = searchTerm.toLowerCase();
+      data = data.filter(e =>
+        e.producer.toLowerCase().includes(s) ||
+        e.label.toLowerCase().includes(s) ||
+        e.region.toLowerCase().includes(s) ||
+        e.vintage.toString().includes(s) ||
+        e.slot.toLowerCase().includes(s)
+      );
+    }
+    data.sort((a, b) => {
+      let va = a[sortKey], vb = b[sortKey];
+      if (sortKey === 'value') { va = parseFloat(va); vb = parseFloat(vb); }
+      if (sortKey === 'slot') {
+        const cmp = va.localeCompare(vb, undefined, { numeric: true, sensitivity: 'base' });
+        return sortDir === 'asc' ? cmp : -cmp;
+      }
+      if (va < vb) return sortDir === 'asc' ? -1 : 1;
+      if (va > vb) return sortDir === 'asc' ? 1 : -1;
+      return 0;
     });
-
-    html += `</tbody></table></div>`;
-  });
-
-  container.innerHTML = html;
-}
-
-function renderGrid() {
-  const data = getFilteredData();
-  const container = document.getElementById('grid-view');
-
-  if (data.length === 0) {
-    container.innerHTML = '<div style="text-align:center;color:var(--text-muted);padding:60px;font-family:Cormorant Garamond,serif;font-size:20px;font-style:italic">No bottles found</div>';
-    return;
+    return data;
   }
 
-  let html = '<div class="grid-container">';
-  data.forEach(e => {
-    const row = getRowLetter(e.slot);
-    const color = ROW_COLORS[row] || '#888';
-    html += `<div class="wine-card" onclick="openEdit(${e.id})" style="--card-color:${color}">
-      <div style="position:absolute;top:0;left:0;right:0;height:2px;background:${color}40"></div>
-      <div class="card-slot">
-        <span class="row-color-dot" style="background:${color}"></span>
-        <span style="color:${color}">${e.slot}</span>
-        <span style="color:var(--text-muted);margin-left:auto">${e.qty} btl</span>
-      </div>
-      <div class="card-producer">${e.producer}</div>
-      <div class="card-label">${e.label}</div>
-      <div class="card-footer">
-        <span class="card-vintage">${e.vintage}</span>
-        <span class="card-value">$${e.value.toFixed(0)}</span>
-      </div>
-    </div>`;
-  });
-  html += '</div>';
-  container.innerHTML = html;
-}
+  function totalBottles(data) { return data.reduce((s, e) => s + e.qty, 0); }
+  function totalValue(data) { return data.reduce((s, e) => s + e.value * e.qty, 0); }
+  function uniqueProducers(data) { return new Set(data.map(e => e.producer)).size; }
 
-function render() {
-  updateStats();
-  if (currentView === 'table') renderTable();
-  else renderGrid();
-}
-
-function setView(v) {
-  currentView = v;
-  document.getElementById('table-view').style.display = v === 'table' ? 'block' : 'none';
-  document.getElementById('grid-view').style.display = v === 'grid' ? 'block' : 'none';
-  document.getElementById('btn-table').classList.toggle('active', v === 'table');
-  document.getElementById('btn-grid').classList.toggle('active', v === 'grid');
-  render();
-}
-
-function filterRow(row, btn) {
-  currentFilter = row;
-  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  render();
-}
-
-function setSort(key) {
-  if (sortKey === key) sortDir = sortDir === 'asc' ? 'desc' : 'asc';
-  else { sortKey = key; sortDir = 'asc'; }
-  render();
-}
-
-document.getElementById('search').addEventListener('input', e => {
-  searchTerm = e.target.value;
-  render();
-});
-
-function openAdd() {
-  editingId = null;
-  document.getElementById('modal-title').textContent = 'Add Bottle';
-  document.getElementById('btn-delete').style.display = 'none';
-  ['slot','qty','producer','label','vintage','value','region','notes'].forEach(f => {
-    document.getElementById('f-'+f).value = f === 'qty' ? '1' : '';
-  });
-  document.getElementById('modal').classList.add('open');
-}
-
-function openEdit(id) {
-  const e = inventory.find(x => x.id === id);
-  if (!e) return;
-  editingId = id;
-  document.getElementById('modal-title').textContent = 'Edit Entry';
-  document.getElementById('btn-delete').style.display = 'block';
-  document.getElementById('f-slot').value = e.slot;
-  document.getElementById('f-qty').value = e.qty;
-  document.getElementById('f-producer').value = e.producer;
-  document.getElementById('f-label').value = e.label;
-  document.getElementById('f-vintage').value = e.vintage;
-  document.getElementById('f-value').value = e.value;
-  document.getElementById('f-region').value = e.region;
-  document.getElementById('f-notes').value = e.notes || '';
-  document.getElementById('modal').classList.add('open');
-}
-
-function closeModal() {
-  document.getElementById('modal').classList.remove('open');
-  editingId = null;
-}
-
-function saveEntry() {
-  const slot = document.getElementById('f-slot').value.trim();
-  const producer = document.getElementById('f-producer').value.trim();
-  if (!slot || !producer) { showToast('Slot and producer are required'); return; }
-
-  const entry = {
-    slot,
-    qty: parseInt(document.getElementById('f-qty').value) || 1,
-    producer,
-    label: document.getElementById('f-label').value.trim(),
-    vintage: document.getElementById('f-vintage').value.trim(),
-    value: parseFloat(document.getElementById('f-value').value) || 0,
-    region: document.getElementById('f-region').value.trim(),
-    notes: document.getElementById('f-notes').value.trim(),
-  };
-
-  if (editingId) {
-    const idx = inventory.findIndex(x => x.id === editingId);
-    inventory[idx] = { ...entry, id: editingId };
-    showToast('Entry updated');
-  } else {
-    inventory.push({ ...entry, id: nextId++ });
-    showToast('Bottle added');
+  function updateStats() {
+    const data = getFilteredData();
+    document.getElementById('stat-bottles').textContent = totalBottles(data);
+    document.getElementById('stat-value').textContent = '$' + totalValue(data).toLocaleString(undefined, {minimumFractionDigits:0, maximumFractionDigits:0});
+    document.getElementById('stat-producers').textContent = uniqueProducers(data);
   }
 
-  saveToStorage();
-  closeModal();
-  render();
-}
+  function groupByRow(data) {
+    const groups = {};
+    data.forEach(e => {
+      const r = getRowLetter(e.slot);
+      if (!groups[r]) groups[r] = [];
+      groups[r].push(e);
+    });
+    return groups;
+  }
 
-function deleteEntry() {
-  if (!editingId) return;
-  inventory = inventory.filter(x => x.id !== editingId);
-  saveToStorage();
-  closeModal();
-  render();
-  showToast('Entry removed');
-}
+  function renderTable() {
+    const data = getFilteredData();
+    const groups = groupByRow(data);
+    const container = document.getElementById('table-view');
+    if (data.length === 0) {
+      container.innerHTML = '<div style="text-align:center;color:var(--text-muted);padding:60px;font-family:Cormorant Garamond,serif;font-size:20px;font-style:italic">No bottles found</div>';
+      return;
+    }
+    let html = '';
+    const rowKeys = Object.keys(groups).sort();
+    rowKeys.forEach(row => {
+      const entries = groups[row];
+      const color = ROW_COLORS[row] || '#888';
+      const rowBottles = totalBottles(entries);
+      const rowVal = totalValue(entries);
+      html += `<div class="section-header">
+        <span class="section-label" style="color:${color}">Row ${row}</span>
+        <span class="section-line"></span>
+        <span class="section-meta">${rowBottles} btl · $${rowVal.toLocaleString(undefined,{minimumFractionDigits:0,maximumFractionDigits:0})}</span>
+      </div>`;
+      html += `<div class="table-wrap"><table><thead><tr>
+        <th onclick="setSort('slot')" class="${sortKey==='slot'?'sort-'+sortDir:''}">Slot</th>
+        <th>Qty</th>
+        <th onclick="setSort('producer')" class="${sortKey==='producer'?'sort-'+sortDir:''}">Producer</th>
+        <th class="col-label">Label</th>
+        <th class="col-vintage" onclick="setSort('vintage')" class="${sortKey==='vintage'?'sort-'+sortDir:''}">Vintage</th>
+        <th class="col-region" onclick="setSort('region')" class="${sortKey==='region'?'sort-'+sortDir:''}">Region</th>
+        <th onclick="setSort('value')" class="${sortKey==='value'?'sort-'+sortDir:''}" style="text-align:right">$/btl</th>
+        <th></th>
+      </tr></thead><tbody>`;
+      entries.forEach(e => {
+        const color2 = ROW_COLORS[row] || '#888';
+        html += `<tr>
+          <td><span class="slot-badge" style="color:${color2};border-color:${color2}40;background:${color2}12">${e.slot}</span></td>
+          <td><span class="qty-badge">${e.qty}</span></td>
+          <td class="producer">${e.producer}</td>
+          <td class="label col-label">${e.label}</td>
+          <td class="vintage col-vintage">${e.vintage}</td>
+          <td class="region col-region">${e.region}</td>
+          <td class="value">$${e.value.toFixed(0)}</td>
+          <td><div class="actions">
+            <button class="btn-sm edit-btn" onclick="openEdit(${e.id})">Edit</button>
+            <button class="btn-sm consume" onclick="consume(${e.id})">−1</button>
+          </div></td>
+        </tr>`;
+      });
+      html += `</tbody></table></div>`;
+    });
+    container.innerHTML = html;
+  }
 
-function consume(id) {
-  const e = inventory.find(x => x.id === id);
-  if (!e) return;
-  if (e.qty <= 1) {
-    if (confirm(`Remove last bottle of ${e.producer} ${e.label}?`)) {
-      inventory = inventory.filter(x => x.id !== id);
-      showToast('Bottle removed from inventory');
+  function renderGrid() {
+    const data = getFilteredData();
+    const container = document.getElementById('grid-view');
+    if (data.length === 0) {
+      container.innerHTML = '<div style="text-align:center;color:var(--text-muted);padding:60px;font-family:Cormorant Garamond,serif;font-size:20px;font-style:italic">No bottles found</div>';
+      return;
+    }
+    let html = '<div class="grid-container">';
+    data.forEach(e => {
+      const row = getRowLetter(e.slot);
+      const color = ROW_COLORS[row] || '#888';
+      html += `<div class="wine-card" onclick="openEdit(${e.id})" style="--card-color:${color}">
+        <div style="position:absolute;top:0;left:0;right:0;height:2px;background:${color}40"></div>
+        <div class="card-slot">
+          <span class="row-color-dot" style="background:${color}"></span>
+          <span style="color:${color}">${e.slot}</span>
+          <span style="color:var(--text-muted);margin-left:auto">${e.qty} btl</span>
+        </div>
+        <div class="card-producer">${e.producer}</div>
+        <div class="card-label">${e.label}</div>
+        <div class="card-footer">
+          <span class="card-vintage">${e.vintage}</span>
+          <span class="card-value">$${e.value.toFixed(0)}</span>
+        </div>
+      </div>`;
+    });
+    html += '</div>';
+    container.innerHTML = html;
+  }
+
+  function render() {
+    updateStats();
+    if (currentView === 'table') renderTable();
+    else renderGrid();
+  }
+
+  function setView(v) {
+    currentView = v;
+    document.getElementById('table-view').style.display = v === 'table' ? 'block' : 'none';
+    document.getElementById('grid-view').style.display = v === 'grid' ? 'block' : 'none';
+    document.getElementById('btn-table').classList.toggle('active', v === 'table');
+    document.getElementById('btn-grid').classList.toggle('active', v === 'grid');
+    render();
+  }
+
+  function filterRow(row, btn) {
+    currentFilter = row;
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    render();
+  }
+
+  function setSort(key) {
+    if (sortKey === key) sortDir = sortDir === 'asc' ? 'desc' : 'asc';
+    else { sortKey = key; sortDir = 'asc'; }
+    render();
+  }
+
+  document.getElementById('search').addEventListener('input', e => {
+    searchTerm = e.target.value;
+    render();
+  });
+
+  function openAdd() {
+    editingId = null;
+    document.getElementById('modal-title').textContent = 'Add Bottle';
+    document.getElementById('btn-delete').style.display = 'none';
+    ['slot','qty','producer','label','vintage','value','region','notes'].forEach(f => {
+      document.getElementById('f-'+f).value = f === 'qty' ? '1' : '';
+    });
+    document.getElementById('modal').classList.add('open');
+  }
+
+  function openEdit(id) {
+    const e = inventory.find(x => x.id === id);
+    if (!e) return;
+    editingId = id;
+    document.getElementById('modal-title').textContent = 'Edit Entry';
+    document.getElementById('btn-delete').style.display = 'block';
+    document.getElementById('f-slot').value = e.slot;
+    document.getElementById('f-qty').value = e.qty;
+    document.getElementById('f-producer').value = e.producer;
+    document.getElementById('f-label').value = e.label;
+    document.getElementById('f-vintage').value = e.vintage;
+    document.getElementById('f-value').value = e.value;
+    document.getElementById('f-region').value = e.region;
+    document.getElementById('f-notes').value = e.notes || '';
+    document.getElementById('modal').classList.add('open');
+  }
+
+  function closeModal() {
+    document.getElementById('modal').classList.remove('open');
+    editingId = null;
+  }
+
+  function saveEntry() {
+    const slot = document.getElementById('f-slot').value.trim();
+    const producer = document.getElementById('f-producer').value.trim();
+    if (!slot || !producer) { showToast('Slot and producer are required'); return; }
+    const entry = {
+      slot,
+      qty: parseInt(document.getElementById('f-qty').value) || 1,
+      producer,
+      label: document.getElementById('f-label').value.trim(),
+      vintage: document.getElementById('f-vintage').value.trim(),
+      value: parseFloat(document.getElementById('f-value').value) || 0,
+      region: document.getElementById('f-region').value.trim(),
+      notes: document.getElementById('f-notes').value.trim(),
+    };
+    if (editingId) {
+      const idx = inventory.findIndex(x => x.id === editingId);
+      inventory[idx] = { ...entry, id: editingId };
+      showToast('Entry updated');
+    } else {
+      inventory.push({ ...entry, id: nextId++ });
+      showToast('Bottle added');
+    }
+    saveToStorage();
+    closeModal();
+    render();
+  }
+
+  function deleteEntry() {
+    if (!editingId) return;
+    inventory = inventory.filter(x => x.id !== editingId);
+    saveToStorage();
+    closeModal();
+    render();
+    showToast('Entry removed');
+  }
+
+  function consume(id) {
+    const e = inventory.find(x => x.id === id);
+    if (!e) return;
+    if (e.qty <= 1) {
+      if (confirm(`Remove last bottle of ${e.producer} ${e.label}?`)) {
+        inventory = inventory.filter(x => x.id !== id);
+        showToast('Bottle removed from inventory');
+        saveToStorage();
+      }
+    } else {
+      e.qty--;
+      showToast(`${e.producer} — ${e.qty} remaining`);
       saveToStorage();
     }
-  } else {
-    e.qty--;
-    showToast(`${e.producer} — ${e.qty} remaining`);
-    saveToStorage();
+    render();
   }
-  render();
-}
 
-function showToast(msg) {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 2500);
-}
-
-// Close modal on overlay click
-document.getElementById('modal').addEventListener('click', e => {
-  if (e.target === document.getElementById('modal')) closeModal();
-});
-
-// Init — listen to Firebase; seed on first load
-let inventory = [];
-let nextId = 50;
-
-onValue(inventoryRef, (snapshot) => {
-  const data = snapshot.val();
-  if (data && data.inventory && data.inventory.length > 0) {
-    inventory = data.inventory;
-    nextId = data.nextId || 50;
-  } else {
-    // First time — push seed data to Firebase
-    inventory = JSON.parse(JSON.stringify(SEED_DATA));
-    nextId = 50;
-    saveToStorage();
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2500);
   }
-  render();
-}, { onlyOnce: false });
+
+  // Close modal on overlay click
+  document.getElementById('modal').addEventListener('click', e => {
+    if (e.target === document.getElementById('modal')) closeModal();
+  });
+
+  // Init — listen to Firebase; seed on first load
+  let inventory = [];
+  let nextId = 50;
+  onValue(inventoryRef, (snapshot) => {
+    const data = snapshot.val();
+    if (data && data.inventory && data.inventory.length > 0) {
+      inventory = data.inventory;
+      nextId = data.nextId || 50;
+    } else {
+      inventory = JSON.parse(JSON.stringify(SEED_DATA));
+      nextId = 50;
+      saveToStorage();
+    }
+    render();
+  }, { onlyOnce: false });
+
+  // Expose functions to global scope (required for inline onclick handlers in ES modules)
+  window.openAdd = openAdd;
+  window.openEdit = openEdit;
+  window.consume = consume;
+  window.closeModal = closeModal;
+  window.saveEntry = saveEntry;
+  window.deleteEntry = deleteEntry;
+  window.setSort = setSort;
+  window.filterRow = filterRow;
+  window.setView = setView;
+  window.resetToSeed = resetToSeed;
 </script>
+
 </body>
 </html>
