@@ -187,6 +187,19 @@ body::before {
   transition: all 0.15s;
 }
 .remove-btn:hover { background: #c46b6b; border-color: #c46b6b; color: var(--bg); }
+.export-btn {
+  background: #0e1a14;
+  border: 1px solid #2a5a3a;
+  color: #6ab87a;
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  padding: 8px 16px;
+  cursor: pointer;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  transition: all 0.15s;
+}
+.export-btn:hover { background: #6ab87a; border-color: #6ab87a; color: var(--bg); }
 .main { padding: 24px 40px 60px; }
 .table-view { display: block; }
 .grid-view { display: none; }
@@ -582,6 +595,7 @@ tr:hover td { background: rgba(201,168,76,0.04); }
   <div class="toolbar-actions">
     <button class="add-btn" onclick="openAdd()">+ Add Bottle</button>
     <button class="remove-btn" onclick="openRemove()">− Remove Bottle</button>
+    <button class="export-btn" onclick="exportCSV()" title="Export inventory as CSV">↓ Export</button>
     <button class="view-btn" onclick="resetToSeed()" title="Reset to original inventory" style="color:#7a5a5a;border-color:#4a2a2a">↺</button>
   </div>
 </div>
@@ -738,10 +752,17 @@ const SEED_DATA = [
 
 // ── Storage ──────────────────────────────────────────────────────────────────
 
+const DB_URL = 'https://brian-wine-fridge-tracking-app-default-rtdb.firebaseio.com/wine-cellar.json';
+
 function saveToStorage() {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify({ inventory, nextId }));
-  } catch (e) { console.warn('Save failed', e); }
+  } catch (e) { console.warn('Local save failed', e); }
+  fetch(DB_URL, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ inventory, nextId })
+  }).catch(e => console.warn('Firebase sync failed', e));
 }
 
 function loadFromStorage() {
@@ -752,13 +773,56 @@ function loadFromStorage() {
       if (data.inventory && data.inventory.length > 0) {
         inventory = data.inventory;
         nextId = data.nextId || 50;
-        return;
       }
     }
   } catch (e) {}
-  inventory = JSON.parse(JSON.stringify(SEED_DATA));
-  nextId = 50;
-  saveToStorage();
+
+  if (!inventory.length) {
+    inventory = JSON.parse(JSON.stringify(SEED_DATA));
+    nextId = 50;
+  }
+
+  fetch(DB_URL)
+    .then(r => r.json())
+    .then(data => {
+      if (data && data.inventory && data.inventory.length > 0) {
+        inventory = data.inventory;
+        nextId = data.nextId || 50;
+        localStorage.setItem(STORAGE_KEY, JSON.stringify({ inventory, nextId }));
+        render();
+        showToast('Synced from cloud ☁️');
+      } else {
+        saveToStorage();
+      }
+    })
+    .catch(() => {});
+}
+
+function exportCSV() {
+  const headers = ['Slot','Producer','Label','Vintage','Type','Qty','$/Btl','Notes'];
+  const rows = [...inventory].sort((a,b) => {
+    const sa = a.slot || '', sb = b.slot || '';
+    return sa.localeCompare(sb, undefined, { numeric: true, sensitivity: 'base' });
+  }).map(e => [
+    e.slot || '',
+    e.producer || '',
+    e.label || '',
+    e.vintage || '',
+    e.type || '',
+    e.qty ?? '',
+    e.price || '',
+    (e.notes || '').replace(/"/g, '""')
+  ].map(v => `"${v}"`).join(','));
+  const csv = [headers.join(','), ...rows].join('\r\n');
+  const blob = new Blob([csv], { type: 'text/csv' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  const date = new Date().toISOString().slice(0,10);
+  a.download = `wine-cellar-${date}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('Inventory exported as CSV');
 }
 
 function resetToSeed() {
