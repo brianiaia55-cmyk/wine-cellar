@@ -234,8 +234,14 @@
     text-transform: uppercase;
   }
 
+  .table-wrap {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
   table {
     width: 100%;
+    min-width: 700px;
     border-collapse: collapse;
   }
 
@@ -848,16 +854,7 @@ function renderTable() {
       <span class="section-meta">${rowBottles} btl · $${rowVal.toLocaleString(undefined,{minimumFractionDigits:0,maximumFractionDigits:0})}</span>
     </div>`;
 
-    html += `<table style="table-layout:fixed;width:100%"><colgroup>
-      <col style="width:90px">
-      <col style="width:60px">
-      <col style="width:18%">
-      <col style="width:auto">
-      <col style="width:80px">
-      <col style="width:15%">
-      <col style="width:70px">
-      <col style="width:100px">
-    </colgroup><thead><tr>
+    html += `<div class="table-wrap"><table><thead><tr>
       <th onclick="setSort('slot')" class="${sortKey==='slot'?'sort-'+sortDir:''}">Slot</th>
       <th>Qty</th>
       <th onclick="setSort('producer')" class="${sortKey==='producer'?'sort-'+sortDir:''}">Producer</th>
@@ -885,7 +882,7 @@ function renderTable() {
       </tr>`;
     });
 
-    html += `</tbody></table>`;
+    html += `</tbody></table></div>`;
   });
 
   container.innerHTML = html;
