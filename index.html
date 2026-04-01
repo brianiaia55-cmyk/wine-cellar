@@ -29,6 +29,14 @@
   --row-f: #d4b84a;
   --row-g: #78c4b2;
   --row-h: #e8845c;
+  --row-i: #c9a84c;
+  --row-j: #6db87a;
+  --row-k: #5ba8d4;
+  --row-l: #e07856;
+  --row-m: #c46bb8;
+  --row-n: #d4b84a;
+  --row-o: #78c4b2;
+  --row-p: #e8845c;
 }
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body {
@@ -590,6 +598,14 @@ tr:hover td { background: rgba(201,168,76,0.04); }
   <button class="filter-btn" onclick="filterRow('F', this)">F</button>
   <button class="filter-btn" onclick="filterRow('G', this)">G</button>
   <button class="filter-btn" onclick="filterRow('H', this)">H</button>
+  <button class="filter-btn" onclick="filterRow('I', this)">I</button>
+  <button class="filter-btn" onclick="filterRow('J', this)">J</button>
+  <button class="filter-btn" onclick="filterRow('K', this)">K</button>
+  <button class="filter-btn" onclick="filterRow('L', this)">L</button>
+  <button class="filter-btn" onclick="filterRow('M', this)">M</button>
+  <button class="filter-btn" onclick="filterRow('N', this)">N</button>
+  <button class="filter-btn" onclick="filterRow('O', this)">O</button>
+  <button class="filter-btn" onclick="filterRow('P', this)">P</button>
   <button class="view-btn active" id="btn-table" onclick="setView('table')">≡</button>
   <button class="view-btn" id="btn-grid" onclick="setView('grid')">⊞</button>
   <div class="toolbar-actions">
@@ -700,7 +716,9 @@ const STORAGE_KEY = 'wine-cellar-inventory';
 
 const ROW_COLORS = {
   A: '#c9a84c', B: '#6db87a', C: '#5ba8d4', D: '#e07856',
-  E: '#c46bb8', F: '#d4b84a', G: '#78c4b2', H: '#e8845c'
+  E: '#c46bb8', F: '#d4b84a', G: '#78c4b2', H: '#e8845c',
+  I: '#c9a84c', J: '#6db87a', K: '#5ba8d4', L: '#e07856',
+  M: '#c46bb8', N: '#d4b84a', O: '#78c4b2', P: '#e8845c'
 };
 
 const SEED_DATA = [
