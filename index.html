@@ -21,23 +21,12 @@
   --red-wine: #7a1e2e;
   --red-dim: #5a2020;
   --red-subtle: #2a1010;
-  --row-a: #c9a84c;
-  --row-b: #6db87a;
-  --row-c: #5ba8d4;
-  --row-d: #e07856;
-  --row-e: #c46bb8;
-  --row-f: #d4b84a;
-  --row-g: #78c4b2;
-  --row-h: #e8845c;
-  --row-i: #c9a84c;
-  --row-j: #6db87a;
-  --row-k: #5ba8d4;
-  --row-l: #e07856;
-  --row-m: #c46bb8;
-  --row-n: #d4b84a;
-  --row-o: #78c4b2;
-  --row-p: #e8845c;
+  --row-a: #c9a84c; --row-b: #6db87a; --row-c: #5ba8d4; --row-d: #e07856;
+  --row-e: #c46bb8; --row-f: #d4b84a; --row-g: #78c4b2; --row-h: #e8845c;
+  --row-i: #c9a84c; --row-j: #6db87a; --row-k: #5ba8d4; --row-l: #e07856;
+  --row-m: #c46bb8; --row-n: #d4b84a; --row-o: #78c4b2; --row-p: #e8845c;
 }
+
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body {
   background: var(--bg);
@@ -55,6 +44,110 @@ body::before {
   z-index: 1000;
   opacity: 0.4;
 }
+
+/* ── PIN LOCK SCREEN ─────────────────────────────────────────────────────── */
+#pin-screen {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  position: fixed;
+  inset: 0;
+  background: var(--bg);
+  z-index: 900;
+}
+.pin-box {
+  width: 320px;
+  text-align: center;
+}
+.pin-logo {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 48px;
+  font-weight: 300;
+  color: var(--gold);
+  letter-spacing: 0.04em;
+  margin-bottom: 6px;
+}
+.pin-sub {
+  color: var(--text-muted);
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  margin-bottom: 40px;
+}
+.pin-label {
+  color: var(--text-dim);
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  margin-bottom: 12px;
+}
+.pin-dots {
+  display: flex;
+  justify-content: center;
+  gap: 14px;
+  margin-bottom: 28px;
+}
+.pin-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 1px solid var(--gold-dim);
+  background: transparent;
+  transition: background 0.15s, border-color 0.15s;
+}
+.pin-dot.filled {
+  background: var(--gold);
+  border-color: var(--gold);
+}
+.pin-dot.error {
+  background: #c46b6b;
+  border-color: #c46b6b;
+}
+.pin-keypad {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-bottom: 14px;
+}
+.pin-key {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 22px;
+  font-weight: 300;
+  padding: 16px;
+  cursor: pointer;
+  transition: all 0.12s;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+.pin-key:hover, .pin-key:active {
+  background: var(--gold-subtle);
+  border-color: var(--gold-dim);
+  color: var(--gold);
+}
+.pin-key.wide {
+  grid-column: span 2;
+}
+.pin-error {
+  color: #c46b6b;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  min-height: 18px;
+  margin-top: 4px;
+}
+.pin-hint {
+  color: var(--text-muted);
+  font-size: 10px;
+  margin-top: 24px;
+  letter-spacing: 0.08em;
+}
+
+/* ── APP (hidden until unlocked) ──────────────────────────────────────────── */
+#app { display: none; }
+
 .header {
   border-bottom: 1px solid var(--border);
   padding: 32px 40px 24px;
@@ -95,6 +188,7 @@ body::before {
   text-transform: uppercase;
   margin-top: 3px;
 }
+
 .toolbar {
   padding: 16px 40px;
   display: flex;
@@ -208,9 +302,24 @@ body::before {
   transition: all 0.15s;
 }
 .export-btn:hover { background: #6ab87a; border-color: #6ab87a; color: var(--bg); }
+
+.lock-btn {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  padding: 8px 12px;
+  cursor: pointer;
+  transition: all 0.15s;
+  letter-spacing: 0.06em;
+}
+.lock-btn:hover { border-color: var(--gold-dim); color: var(--gold); }
+
 .main { padding: 24px 40px 60px; }
 .table-view { display: block; }
 .grid-view { display: none; }
+
 .section-header {
   display: flex;
   align-items: center;
@@ -230,6 +339,7 @@ body::before {
   letter-spacing: 0.12em;
   text-transform: uppercase;
 }
+
 .table-wrap { width: 100%; }
 table { width: 100%; border-collapse: collapse; }
 .table-wrap table { table-layout: fixed; width: 100%; }
@@ -242,10 +352,12 @@ table { width: 100%; border-collapse: collapse; }
 .table-wrap table th:nth-child(7), .table-wrap table td:nth-child(7) { width: 75px; text-align: right; }
 .table-wrap table th:nth-child(8), .table-wrap table td:nth-child(8) { width: 105px; }
 .table-wrap table td { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
 @media (max-width: 768px) {
   .col-label, .col-vintage, .col-region { display: none; }
   .main { padding: 16px 12px 40px; }
 }
+
 th {
   text-align: left;
   font-size: 10px;
@@ -313,6 +425,7 @@ tr:hover td { background: rgba(201,168,76,0.04); }
 }
 .btn-sm:hover { border-color: var(--gold-dim); color: var(--gold); }
 .btn-sm.consume:hover { border-color: #c46b6b; color: #c46b6b; }
+
 /* GRID VIEW */
 .grid-container {
   display: grid;
@@ -350,6 +463,7 @@ tr:hover td { background: rgba(201,168,76,0.04); }
 .card-footer { display: flex; justify-content: space-between; align-items: flex-end; margin-top: 8px; }
 .card-vintage { font-family: 'Cormorant Garamond', serif; font-size: 18px; color: var(--gold-dim); font-weight: 300; }
 .card-value { font-family: 'Cormorant Garamond', serif; font-size: 16px; color: var(--gold); font-weight: 300; }
+
 /* MODAL */
 .modal-overlay {
   display: none;
@@ -472,11 +586,9 @@ tr:hover td { background: rgba(201,168,76,0.04); }
   margin-right: auto;
 }
 .btn-delete:hover { background: #3a1010; border-color: #9a4040; color: #c46b6b; }
+
 /* Remove modal search results */
-.remove-search-wrap {
-  position: relative;
-  margin-bottom: 14px;
-}
+.remove-search-wrap { position: relative; margin-bottom: 14px; }
 .remove-search-wrap input {
   width: 100%;
   background: var(--surface);
@@ -507,23 +619,16 @@ tr:hover td { background: rgba(201,168,76,0.04); }
   gap: 12px;
 }
 .remove-result-item:last-child { border-bottom: none; }
-.remove-result-item:hover { background: rgba(196, 107, 107, 0.08); }
-.remove-result-item.selected { background: rgba(196, 107, 107, 0.15); border-left: 2px solid #c46b6b; }
-.rr-slot {
-  font-size: 10px;
-  letter-spacing: 0.08em;
-  padding: 2px 6px;
-  border: 1px solid;
-  white-space: nowrap;
-  flex-shrink: 0;
-}
+.remove-result-item:hover { background: rgba(196,107,107,0.08); }
+.remove-result-item.selected { background: rgba(196,107,107,0.15); border-left: 2px solid #c46b6b; }
+.rr-slot { font-size: 10px; letter-spacing: 0.08em; padding: 2px 6px; border: 1px solid; white-space: nowrap; flex-shrink: 0; }
 .rr-info { flex: 1; min-width: 0; }
 .rr-producer { font-weight: 400; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .rr-label { font-size: 11px; color: var(--text-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .rr-qty { font-size: 11px; color: var(--gold-dim); flex-shrink: 0; }
 .remove-empty { padding: 20px; text-align: center; color: var(--text-muted); font-style: italic; }
 .remove-selected-summary {
-  background: rgba(196, 107, 107, 0.08);
+  background: rgba(196,107,107,0.08);
   border: 1px solid var(--red-dim);
   padding: 12px 14px;
   margin-bottom: 14px;
@@ -534,6 +639,7 @@ tr:hover td { background: rgba(201,168,76,0.04); }
 .remove-selected-summary strong { color: var(--text); }
 .empty-row td { text-align: center; color: var(--text-muted); padding: 28px; font-style: italic; }
 .row-color-dot { width: 6px; height: 6px; border-radius: 50%; display: inline-block; }
+
 /* Toast */
 .toast {
   position: fixed;
@@ -554,6 +660,7 @@ tr:hover td { background: rgba(201,168,76,0.04); }
 .toast.show { opacity: 1; transform: translateY(0); }
 .sort-asc::after { content: ' ↑'; color: var(--gold); }
 .sort-desc::after { content: ' ↓'; color: var(--gold); }
+
 @media (max-width: 700px) {
   .header, .toolbar, .main { padding-left: 16px; padding-right: 16px; }
   .form-row { grid-template-columns: 1fr; }
@@ -563,62 +670,96 @@ tr:hover td { background: rgba(201,168,76,0.04); }
 </head>
 <body>
 
-<div class="header">
-  <div class="header-left">
-    <h1>Wine Cellar</h1>
-    <p>Personal Registry · Active Inventory</p>
-  </div>
-  <div class="stats">
-    <div class="stat">
-      <div class="stat-val" id="stat-bottles">0</div>
-      <div class="stat-label">Bottles</div>
+<!-- ── PIN LOCK SCREEN ──────────────────────────────────────────────────── -->
+<div id="pin-screen">
+  <div class="pin-box">
+    <div class="pin-logo">Wine Cellar</div>
+    <div class="pin-sub">Personal Registry</div>
+    <div class="pin-label">Enter PIN</div>
+    <div class="pin-dots" id="pin-dots">
+      <div class="pin-dot" id="d0"></div>
+      <div class="pin-dot" id="d1"></div>
+      <div class="pin-dot" id="d2"></div>
+      <div class="pin-dot" id="d3"></div>
     </div>
-    <div class="stat">
-      <div class="stat-val" id="stat-value">$0</div>
-      <div class="stat-label">Est. Value</div>
+    <div class="pin-keypad">
+      <button class="pin-key" onclick="pinPress('1')">1</button>
+      <button class="pin-key" onclick="pinPress('2')">2</button>
+      <button class="pin-key" onclick="pinPress('3')">3</button>
+      <button class="pin-key" onclick="pinPress('4')">4</button>
+      <button class="pin-key" onclick="pinPress('5')">5</button>
+      <button class="pin-key" onclick="pinPress('6')">6</button>
+      <button class="pin-key" onclick="pinPress('7')">7</button>
+      <button class="pin-key" onclick="pinPress('8')">8</button>
+      <button class="pin-key" onclick="pinPress('9')">9</button>
+      <button class="pin-key wide" onclick="pinPress('0')">0</button>
+      <button class="pin-key" onclick="pinBackspace()">⌫</button>
     </div>
-    <div class="stat">
-      <div class="stat-val" id="stat-producers">0</div>
-      <div class="stat-label">Producers</div>
-    </div>
+    <div class="pin-error" id="pin-error"></div>
+    <div class="pin-hint">Access locked · PIN required</div>
   </div>
 </div>
 
-<div class="toolbar">
-  <div class="search-wrap">
-    <span class="search-icon">⌕</span>
-    <input type="text" id="search" placeholder="Search producer, region, vintage...">
+<!-- ── MAIN APP ────────────────────────────────────────────────────────── -->
+<div id="app">
+  <div class="header">
+    <div class="header-left">
+      <h1>Wine Cellar</h1>
+      <p>Personal Registry · Active Inventory</p>
+    </div>
+    <div class="stats">
+      <div class="stat">
+        <div class="stat-val" id="stat-bottles">0</div>
+        <div class="stat-label">Bottles</div>
+      </div>
+      <div class="stat">
+        <div class="stat-val" id="stat-value">$0</div>
+        <div class="stat-label">Est. Value</div>
+      </div>
+      <div class="stat">
+        <div class="stat-val" id="stat-producers">0</div>
+        <div class="stat-label">Producers</div>
+      </div>
+    </div>
   </div>
-  <button class="filter-btn active" onclick="filterRow('all', this)">All</button>
-  <button class="filter-btn" onclick="filterRow('A', this)">A</button>
-  <button class="filter-btn" onclick="filterRow('B', this)">B</button>
-  <button class="filter-btn" onclick="filterRow('C', this)">C</button>
-  <button class="filter-btn" onclick="filterRow('D', this)">D</button>
-  <button class="filter-btn" onclick="filterRow('E', this)">E</button>
-  <button class="filter-btn" onclick="filterRow('F', this)">F</button>
-  <button class="filter-btn" onclick="filterRow('G', this)">G</button>
-  <button class="filter-btn" onclick="filterRow('H', this)">H</button>
-  <button class="filter-btn" onclick="filterRow('I', this)">I</button>
-  <button class="filter-btn" onclick="filterRow('J', this)">J</button>
-  <button class="filter-btn" onclick="filterRow('K', this)">K</button>
-  <button class="filter-btn" onclick="filterRow('L', this)">L</button>
-  <button class="filter-btn" onclick="filterRow('M', this)">M</button>
-  <button class="filter-btn" onclick="filterRow('N', this)">N</button>
-  <button class="filter-btn" onclick="filterRow('O', this)">O</button>
-  <button class="filter-btn" onclick="filterRow('P', this)">P</button>
-  <button class="view-btn active" id="btn-table" onclick="setView('table')">≡</button>
-  <button class="view-btn" id="btn-grid" onclick="setView('grid')">⊞</button>
-  <div class="toolbar-actions">
-    <button class="add-btn" onclick="openAdd()">+ Add Bottle</button>
-    <button class="remove-btn" onclick="openRemove()">− Remove Bottle</button>
-    <button class="export-btn" onclick="exportCSV()" title="Export inventory as CSV">↓ Export</button>
-    <button class="view-btn" onclick="resetToSeed()" title="Reset to original inventory" style="color:#7a5a5a;border-color:#4a2a2a">↺</button>
-  </div>
-</div>
 
-<div class="main">
-  <div class="table-view" id="table-view"></div>
-  <div class="grid-view" id="grid-view"></div>
+  <div class="toolbar">
+    <div class="search-wrap">
+      <span class="search-icon">⌕</span>
+      <input type="text" id="search" placeholder="Search producer, region, vintage...">
+    </div>
+    <button class="filter-btn active" onclick="filterRow('all', this)">All</button>
+    <button class="filter-btn" onclick="filterRow('A', this)">A</button>
+    <button class="filter-btn" onclick="filterRow('B', this)">B</button>
+    <button class="filter-btn" onclick="filterRow('C', this)">C</button>
+    <button class="filter-btn" onclick="filterRow('D', this)">D</button>
+    <button class="filter-btn" onclick="filterRow('E', this)">E</button>
+    <button class="filter-btn" onclick="filterRow('F', this)">F</button>
+    <button class="filter-btn" onclick="filterRow('G', this)">G</button>
+    <button class="filter-btn" onclick="filterRow('H', this)">H</button>
+    <button class="filter-btn" onclick="filterRow('I', this)">I</button>
+    <button class="filter-btn" onclick="filterRow('J', this)">J</button>
+    <button class="filter-btn" onclick="filterRow('K', this)">K</button>
+    <button class="filter-btn" onclick="filterRow('L', this)">L</button>
+    <button class="filter-btn" onclick="filterRow('M', this)">M</button>
+    <button class="filter-btn" onclick="filterRow('N', this)">N</button>
+    <button class="filter-btn" onclick="filterRow('O', this)">O</button>
+    <button class="filter-btn" onclick="filterRow('P', this)">P</button>
+    <button class="view-btn active" id="btn-table" onclick="setView('table')">≡</button>
+    <button class="view-btn" id="btn-grid" onclick="setView('grid')">⊞</button>
+    <div class="toolbar-actions">
+      <button class="add-btn" onclick="openAdd()">+ Add Bottle</button>
+      <button class="remove-btn" onclick="openRemove()">− Remove Bottle</button>
+      <button class="export-btn" onclick="exportCSV()" title="Export inventory as CSV">↓ Export</button>
+      <button class="view-btn" onclick="resetToSeed()" title="Reset to original inventory" style="color:#7a5a5a;border-color:#4a2a2a">↺</button>
+      <button class="lock-btn" onclick="lockApp()" title="Lock">⚿</button>
+    </div>
+  </div>
+
+  <div class="main">
+    <div class="table-view" id="table-view"></div>
+    <div class="grid-view" id="grid-view"></div>
+  </div>
 </div>
 
 <!-- Add / Edit Modal -->
@@ -675,7 +816,6 @@ tr:hover td { background: rgba(201,168,76,0.04); }
   <div class="modal">
     <button class="modal-close" onclick="closeRemoveModal()">✕</button>
     <h2 class="remove-title">− Remove Bottle</h2>
-
     <div class="form-group">
       <label>Search your cellar</label>
       <div class="remove-search-wrap">
@@ -683,11 +823,9 @@ tr:hover td { background: rgba(201,168,76,0.04); }
         <input type="text" id="remove-search" placeholder="Producer, label, slot, vintage..." oninput="filterRemoveResults()">
       </div>
     </div>
-
     <div class="remove-results" id="remove-results">
       <div class="remove-empty">Start typing to find a wine</div>
     </div>
-
     <div class="remove-selected-summary" id="remove-summary">
       <p>Selected: <strong id="remove-summary-name">—</strong></p>
       <div class="form-row" style="margin-bottom:0">
@@ -701,7 +839,6 @@ tr:hover td { background: rgba(201,168,76,0.04); }
         </div>
       </div>
     </div>
-
     <div class="modal-footer">
       <button class="btn-cancel" onclick="closeRemoveModal()">Cancel</button>
       <button class="btn-remove-confirm" id="remove-confirm-btn" onclick="confirmRemove()" disabled style="opacity:0.4;cursor:not-allowed">Remove</button>
@@ -712,8 +849,86 @@ tr:hover td { background: rgba(201,168,76,0.04); }
 <div class="toast" id="toast"></div>
 
 <script>
-const STORAGE_KEY = 'wine-cellar-inventory';
+// ── PIN AUTH ──────────────────────────────────────────────────────────────────
+// To change your PIN: update the CORRECT_PIN value below, then redeploy.
+const CORRECT_PIN = '1234'; // ← CHANGE THIS TO YOUR DESIRED PIN
 
+const SESSION_KEY = 'wc-unlocked';
+let pinBuffer = '';
+
+function pinPress(digit) {
+  if (pinBuffer.length >= 4) return;
+  pinBuffer += digit;
+  updatePinDots();
+  if (pinBuffer.length === 4) {
+    setTimeout(checkPin, 120);
+  }
+}
+
+function pinBackspace() {
+  pinBuffer = pinBuffer.slice(0, -1);
+  updatePinDots(false);
+  document.getElementById('pin-error').textContent = '';
+}
+
+function updatePinDots(error = false) {
+  for (let i = 0; i < 4; i++) {
+    const dot = document.getElementById('d' + i);
+    dot.classList.toggle('filled', i < pinBuffer.length);
+    dot.classList.toggle('error', error && i < pinBuffer.length);
+  }
+}
+
+function checkPin() {
+  if (pinBuffer === CORRECT_PIN) {
+    sessionStorage.setItem(SESSION_KEY, '1');
+    unlockApp();
+  } else {
+    // Flash error
+    for (let i = 0; i < 4; i++) {
+      const dot = document.getElementById('d' + i);
+      dot.classList.remove('filled');
+      dot.classList.add('error');
+    }
+    document.getElementById('pin-error').textContent = 'Incorrect PIN';
+    setTimeout(() => {
+      pinBuffer = '';
+      updatePinDots();
+      document.getElementById('pin-error').textContent = '';
+    }, 900);
+  }
+}
+
+function unlockApp() {
+  document.getElementById('pin-screen').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+  loadFromStorage();
+}
+
+function lockApp() {
+  sessionStorage.removeItem(SESSION_KEY);
+  pinBuffer = '';
+  updatePinDots();
+  document.getElementById('pin-error').textContent = '';
+  document.getElementById('pin-screen').style.display = 'flex';
+  document.getElementById('app').style.display = 'none';
+}
+
+// Check if already unlocked this session
+if (sessionStorage.getItem(SESSION_KEY) === '1') {
+  document.getElementById('pin-screen').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+}
+
+// Keyboard support for PIN
+document.addEventListener('keydown', e => {
+  if (document.getElementById('pin-screen').style.display === 'none') return;
+  if (e.key >= '0' && e.key <= '9') pinPress(e.key);
+  if (e.key === 'Backspace') pinBackspace();
+});
+
+// ── CONSTANTS ─────────────────────────────────────────────────────────────────
+const STORAGE_KEY = 'wine-cellar-inventory';
 const ROW_COLORS = {
   A: '#c9a84c', B: '#6db87a', C: '#5ba8d4', D: '#e07856',
   E: '#c46bb8', F: '#d4b84a', G: '#78c4b2', H: '#e8845c',
@@ -722,60 +937,71 @@ const ROW_COLORS = {
 };
 
 const SEED_DATA = [
-  {id:1,  slot:'A1–A2',   qty:2, producer:'PlumpJack',        label:'Estate',                vintage:'2019', region:'Oakville',      value:195.00, notes:''},
-  {id:2,  slot:'A3',      qty:1, producer:'Ch. Rauzan-Ségla', label:'Grand Cru Classé',      vintage:'2019', region:'Margaux',        value:175.00, notes:''},
-  {id:3,  slot:'A4',      qty:1, producer:'Silver Oak',       label:'Napa Valley',           vintage:'2019', region:'Napa Valley',    value:185.00, notes:''},
-  {id:4,  slot:'A5',      qty:1, producer:'DAOU',             label:'Soul of a Lion',        vintage:'2021', region:'Paso Robles',    value:150.00, notes:''},
-  {id:5,  slot:'A6',      qty:1, producer:'Cade',             label:'Estate (Black Top)',    vintage:'2019', region:'Howell Mtn',     value:155.00, notes:''},
-  {id:6,  slot:'A7',      qty:1, producer:'Goldschmidt',      label:'Plus (Single Vyd)',     vintage:'2021', region:'Oakville',       value:150.00, notes:''},
-  {id:7,  slot:'A8–A9',   qty:2, producer:'Double Diamond',   label:'Schrader Cellars',      vintage:'2021', region:'Oakville',       value:95.00,  notes:''},
-  {id:8,  slot:'A10',     qty:1, producer:'Hall',             label:"Ellie's",               vintage:'2021', region:'Napa Valley',    value:90.00,  notes:''},
-  {id:9,  slot:'A11',     qty:1, producer:'Hall',             label:'1873',                  vintage:'2021', region:'Rutherford',     value:90.00,  notes:''},
-  {id:10, slot:'A12',     qty:1, producer:'Goldschmidt',      label:'Yoeman',                vintage:'2021', region:'Alexander Vly',  value:100.00, notes:''},
-  {id:11, slot:'B1–B2',   qty:2, producer:'Austin Hope',      label:'Cabernet Sauvignon',    vintage:'2023', region:'Paso Robles',    value:65.00,  notes:''},
-  {id:12, slot:'B3',      qty:1, producer:'Ch. Montelena',    label:'Napa Valley Cab',       vintage:'2017', region:'Napa Valley',    value:90.00,  notes:''},
-  {id:13, slot:'B4–B6',   qty:3, producer:'Ch. Montelena',    label:'Napa Valley Cab',       vintage:'2022', region:'Napa Valley',    value:85.00,  notes:''},
-  {id:14, slot:'B7',      qty:1, producer:'Jett',             label:'Cabernet Sauvignon',    vintage:'2022', region:'Walla Walla',    value:90.00,  notes:''},
-  {id:15, slot:'B8',      qty:1, producer:'Amici',            label:'Napa Valley Cab',       vintage:'2022', region:'Napa Valley',    value:55.00,  notes:''},
-  {id:16, slot:'B9',      qty:1, producer:'Joseph Phelps',    label:'Cabernet Sauvignon',    vintage:'2021', region:'Napa Valley',    value:100.00, notes:''},
-  {id:17, slot:'C1',      qty:1, producer:'Chimney Rock',     label:'Estate',                vintage:'2022', region:'Stags Leap',     value:110.00, notes:''},
-  {id:18, slot:'C2–C10',  qty:9, producer:'Chimney Rock',     label:'Estate',                vintage:'2021', region:'Stags Leap',     value:100.00, notes:''},
-  {id:19, slot:'D1–D3',   qty:3, producer:'Chimney Rock',     label:'Estate',                vintage:'2022', region:'Stags Leap',     value:110.00, notes:''},
-  {id:20, slot:'D4–D6',   qty:3, producer:"Stag's Leap WC",  label:'Artemis',               vintage:'2021', region:'Napa Valley',    value:85.00,  notes:''},
-  {id:21, slot:'D7–D9',   qty:3, producer:'Goldschmidt',      label:'Hilary (Charming Crk)', vintage:'2022', region:'Oakville',       value:65.00,  notes:''},
-  {id:22, slot:'D10',     qty:1, producer:'Trefethen',        label:'Estate Cabernet',       vintage:'2021', region:'Oak Knoll',      value:65.00,  notes:''},
-  {id:23, slot:'D11',     qty:1, producer:"Stag's Leap WC",  label:'Artemis',               vintage:'2021', region:'Napa Valley',    value:85.00,  notes:''},
-  {id:24, slot:'E1–E4',   qty:4, producer:'Duckhorn',         label:'Cabernet Sauvignon',    vintage:'2022', region:'Napa Valley',    value:85.00,  notes:''},
-  {id:25, slot:'E5–E11',  qty:7, producer:'Duckhorn',         label:'Cabernet Sauvignon',    vintage:'2021', region:'Napa Valley',    value:80.00,  notes:''},
-  {id:26, slot:'F1–F2',   qty:2, producer:'Bella Union',      label:'Cabernet Sauvignon',    vintage:'2022', region:'Napa Valley',    value:75.00,  notes:''},
-  {id:27, slot:'F3–F8',   qty:6, producer:'Post & Beam',      label:'Cabernet Sauvignon',    vintage:'2022', region:'Napa Valley',    value:55.00,  notes:''},
-  {id:28, slot:'F9–F10',  qty:2, producer:'Ch. Grand Pontet', label:'Grand Cru Classé',      vintage:'2010', region:'St-Émilion',     value:95.00,  notes:''},
-  {id:29, slot:'G1–G11',  qty:11,producer:'Faust',            label:'Cabernet Sauvignon',    vintage:'2022', region:'Napa Valley',    value:60.00,  notes:''},
-  {id:30, slot:'H1–H2',   qty:2, producer:'Frank Family',     label:'Cabernet Sauvignon',    vintage:'2021', region:'Napa Valley',    value:60.00,  notes:''},
-  {id:31, slot:'H3',      qty:1, producer:'Ch. Le Roc',       label:'Bordeaux',              vintage:'2022', region:'Bordeaux',       value:35.00,  notes:''},
-  {id:32, slot:'H4',      qty:1, producer:'Ch. Laplagnotte',  label:'St-Émilion GC',         vintage:'2021', region:'St-Émilion',     value:45.00,  notes:''},
-  {id:33, slot:'H5–H6',   qty:2, producer:'Ch. Faizeau',      label:'Montagne St-Émilion',   vintage:'2020', region:'St-Émilion',     value:40.00,  notes:''},
-  {id:34, slot:'H7,H12',  qty:2, producer:'Ch. Cantelys',     label:'Pessac-Léognan',        vintage:'2018', region:'Bordeaux',       value:45.00,  notes:''},
-  {id:35, slot:'H8',      qty:1, producer:'Ch. Preuillac',    label:'Médoc',                 vintage:'2018', region:'Bordeaux',       value:40.00,  notes:''},
-  {id:36, slot:'H9',      qty:1, producer:'Ch. de Lamarque',  label:'Haut-Médoc',            vintage:'2017', region:'Bordeaux',       value:45.00,  notes:''},
-  {id:37, slot:'H10–H11', qty:2, producer:'Ch. La Cardonne',  label:'Médoc',                 vintage:'2018', region:'Bordeaux',       value:35.00,  notes:''},
-  {id:38, slot:'H13',     qty:1, producer:'Ch. Laroque',      label:'Grand Cru Classé',      vintage:'2014', region:'St-Émilion',     value:75.00,  notes:''},
-  {id:39, slot:'H14',     qty:1, producer:'Dry Creek Vyd',    label:'Cabernet Sauvignon',    vintage:'2021', region:'Dry Creek',      value:35.00,  notes:''},
-  {id:40, slot:'H15–H17', qty:3, producer:'Goldschmidt',      label:'Katherine',             vintage:'2021', region:'Alexander Vly',  value:40.00,  notes:''},
-  {id:41, slot:'H18',     qty:1, producer:'Leviathan',        label:'Red Blend',             vintage:'2021', region:'California',     value:40.00,  notes:''},
-  {id:42, slot:'H19',     qty:1, producer:'Milk & Honey',     label:'Red Blend',             vintage:'NV',   region:'Paso Robles',    value:35.00,  notes:''},
-  {id:43, slot:'H20',     qty:1, producer:'Montes Alpha M',   label:'Red Blend',             vintage:'2019', region:'Colchagua',      value:100.00, notes:''},
-  {id:44, slot:'H21–H22', qty:2, producer:'Stonestreet',      label:'Estate Cabernet',       vintage:'2019', region:'Alexander Vly',  value:55.00,  notes:''},
+  {id:1,  slot:'A1–A2',   qty:2,  producer:'PlumpJack',        label:'Estate',                  vintage:'2019', region:'Oakville',       value:195.00, notes:''},
+  {id:2,  slot:'A3',      qty:1,  producer:'Ch. Rauzan-Ségla',  label:'Grand Cru Classé',        vintage:'2019', region:'Margaux',        value:175.00, notes:''},
+  {id:3,  slot:'A4',      qty:1,  producer:'Silver Oak',        label:'Napa Valley',             vintage:'2019', region:'Napa Valley',    value:185.00, notes:''},
+  {id:4,  slot:'A5',      qty:1,  producer:'DAOU',              label:'Soul of a Lion',          vintage:'2021', region:'Paso Robles',    value:150.00, notes:''},
+  {id:5,  slot:'A6',      qty:1,  producer:'Cade',              label:'Estate (Black Top)',      vintage:'2019', region:'Howell Mtn',     value:155.00, notes:''},
+  {id:6,  slot:'A7',      qty:1,  producer:'Goldschmidt',       label:'Plus (Single Vyd)',       vintage:'2021', region:'Oakville',       value:150.00, notes:''},
+  {id:7,  slot:'A8–A9',   qty:2,  producer:'Double Diamond',    label:'Schrader Cellars',        vintage:'2021', region:'Oakville',       value:95.00,  notes:''},
+  {id:8,  slot:'A10',     qty:1,  producer:'Hall',              label:"Ellie's",                 vintage:'2021', region:'Napa Valley',    value:90.00,  notes:''},
+  {id:9,  slot:'A11',     qty:1,  producer:'Hall',              label:'1873',                    vintage:'2021', region:'Rutherford',     value:90.00,  notes:''},
+  {id:10, slot:'A12',     qty:1,  producer:'Goldschmidt',       label:'Yoeman',                  vintage:'2021', region:'Alexander Vly',  value:100.00, notes:''},
+  {id:11, slot:'B1–B2',   qty:2,  producer:'Austin Hope',       label:'Cabernet Sauvignon',      vintage:'2023', region:'Paso Robles',    value:65.00,  notes:''},
+  {id:12, slot:'B3',      qty:1,  producer:'Ch. Montelena',     label:'Napa Valley Cab',         vintage:'2017', region:'Napa Valley',    value:90.00,  notes:''},
+  {id:13, slot:'B4–B6',   qty:3,  producer:'Ch. Montelena',     label:'Napa Valley Cab',         vintage:'2022', region:'Napa Valley',    value:85.00,  notes:''},
+  {id:14, slot:'B7',      qty:1,  producer:'Jett',              label:'Cabernet Sauvignon',      vintage:'2022', region:'Walla Walla',    value:90.00,  notes:''},
+  {id:15, slot:'B8',      qty:1,  producer:'Amici',             label:'Napa Valley Cab',         vintage:'2022', region:'Napa Valley',    value:55.00,  notes:''},
+  {id:16, slot:'B9',      qty:1,  producer:'Joseph Phelps',     label:'Cabernet Sauvignon',      vintage:'2021', region:'Napa Valley',    value:100.00, notes:''},
+  {id:17, slot:'C1',      qty:1,  producer:'Chimney Rock',      label:'Estate',                  vintage:'2022', region:'Stags Leap',     value:110.00, notes:''},
+  {id:18, slot:'C2–C10',  qty:9,  producer:'Chimney Rock',      label:'Estate',                  vintage:'2021', region:'Stags Leap',     value:100.00, notes:''},
+  {id:19, slot:'D1–D3',   qty:3,  producer:'Chimney Rock',      label:'Estate',                  vintage:'2022', region:'Stags Leap',     value:110.00, notes:''},
+  {id:20, slot:'D4–D6',   qty:3,  producer:"Stag's Leap WC",   label:'Artemis',                 vintage:'2021', region:'Napa Valley',    value:85.00,  notes:''},
+  {id:21, slot:'D7–D9',   qty:3,  producer:'Goldschmidt',       label:'Hilary (Charming Crk)',   vintage:'2022', region:'Oakville',       value:65.00,  notes:''},
+  {id:22, slot:'D10',     qty:1,  producer:'Trefethen',         label:'Estate Cabernet',         vintage:'2021', region:'Oak Knoll',      value:65.00,  notes:''},
+  {id:23, slot:'D11',     qty:1,  producer:"Stag's Leap WC",   label:'Artemis',                 vintage:'2021', region:'Napa Valley',    value:85.00,  notes:''},
+  {id:24, slot:'E1–E4',   qty:4,  producer:'Duckhorn',          label:'Cabernet Sauvignon',      vintage:'2022', region:'Napa Valley',    value:85.00,  notes:''},
+  {id:25, slot:'E5–E11',  qty:7,  producer:'Duckhorn',          label:'Cabernet Sauvignon',      vintage:'2021', region:'Napa Valley',    value:80.00,  notes:''},
+  {id:26, slot:'F1–F2',   qty:2,  producer:'Bella Union',       label:'Cabernet Sauvignon',      vintage:'2022', region:'Napa Valley',    value:75.00,  notes:''},
+  {id:27, slot:'F3–F8',   qty:6,  producer:'Post & Beam',       label:'Cabernet Sauvignon',      vintage:'2022', region:'Napa Valley',    value:55.00,  notes:''},
+  {id:28, slot:'F9–F10',  qty:2,  producer:'Ch. Grand Pontet',  label:'Grand Cru Classé',        vintage:'2010', region:'St-Émilion',     value:95.00,  notes:''},
+  {id:29, slot:'G1–G11',  qty:11, producer:'Faust',             label:'Cabernet Sauvignon',      vintage:'2022', region:'Napa Valley',    value:60.00,  notes:''},
+  {id:30, slot:'H1–H2',   qty:2,  producer:'Frank Family',      label:'Cabernet Sauvignon',      vintage:'2021', region:'Napa Valley',    value:60.00,  notes:''},
+  {id:31, slot:'H3',      qty:1,  producer:'Ch. Le Roc',        label:'Bordeaux',                vintage:'2022', region:'Bordeaux',       value:35.00,  notes:''},
+  {id:32, slot:'H4',      qty:1,  producer:'Ch. Laplagnotte',   label:'St-Émilion GC',           vintage:'2021', region:'St-Émilion',     value:45.00,  notes:''},
+  {id:33, slot:'H5–H6',   qty:2,  producer:'Ch. Faizeau',       label:'Montagne St-Émilion',     vintage:'2020', region:'St-Émilion',     value:40.00,  notes:''},
+  {id:34, slot:'H7,H12',  qty:2,  producer:'Ch. Cantelys',      label:'Pessac-Léognan',          vintage:'2018', region:'Bordeaux',       value:45.00,  notes:''},
+  {id:35, slot:'H8',      qty:1,  producer:'Ch. Preuillac',     label:'Médoc',                   vintage:'2018', region:'Bordeaux',       value:40.00,  notes:''},
+  {id:36, slot:'H9',      qty:1,  producer:'Ch. de Lamarque',   label:'Haut-Médoc',              vintage:'2017', region:'Bordeaux',       value:45.00,  notes:''},
+  {id:37, slot:'H10–H11', qty:2,  producer:'Ch. La Cardonne',   label:'Médoc',                   vintage:'2018', region:'Bordeaux',       value:35.00,  notes:''},
+  {id:38, slot:'H13',     qty:1,  producer:'Ch. Laroque',       label:'Grand Cru Classé',        vintage:'2014', region:'St-Émilion',     value:75.00,  notes:''},
+  {id:39, slot:'H14',     qty:1,  producer:'Dry Creek Vyd',     label:'Cabernet Sauvignon',      vintage:'2021', region:'Dry Creek',      value:35.00,  notes:''},
+  {id:40, slot:'H15–H17', qty:3,  producer:'Goldschmidt',       label:'Katherine',               vintage:'2021', region:'Alexander Vly',  value:40.00,  notes:''},
+  {id:41, slot:'H18',     qty:1,  producer:'Leviathan',         label:'Red Blend',               vintage:'2021', region:'California',     value:40.00,  notes:''},
+  {id:42, slot:'H19',     qty:1,  producer:'Milk & Honey',      label:'Red Blend',               vintage:'NV',   region:'Paso Robles',    value:35.00,  notes:''},
+  {id:43, slot:'H20',     qty:1,  producer:'Montes Alpha M',    label:'Red Blend',               vintage:'2019', region:'Colchagua',      value:100.00, notes:''},
+  {id:44, slot:'H21–H22', qty:2,  producer:'Stonestreet',       label:'Estate Cabernet',         vintage:'2019', region:'Alexander Vly',  value:55.00,  notes:''},
 ];
 
-// ── Storage ──────────────────────────────────────────────────────────────────
-
+// ── Firebase ──────────────────────────────────────────────────────────────────
 const DB_URL = 'https://brian-wine-fridge-tracking-app-default-rtdb.firebaseio.com/wine-cellar.json';
 
+// ── NOTE FOR FIREBASE CONSOLE ─────────────────────────────────────────────────
+// After deploying this file, go to Firebase Console → Realtime Database → Rules
+// and set the rules to:
+// {
+//   "rules": {
+//     ".read": false,
+//     ".write": false
+//   }
+// }
+// This locks the database completely. The PIN lives in this file (client-side),
+// which is sufficient for personal use — nobody can reach your Firebase URL
+// without first passing the PIN screen. For stronger security in the future,
+// Firebase Auth can be added.
+
 function saveToStorage() {
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify({ inventory, nextId }));
-  } catch (e) { console.warn('Local save failed', e); }
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify({ inventory, nextId })); } catch(e) {}
   fetch(DB_URL, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
@@ -793,13 +1019,12 @@ function loadFromStorage() {
         nextId = data.nextId || 50;
       }
     }
-  } catch (e) {}
-
+  } catch(e) {}
   if (!inventory.length) {
     inventory = JSON.parse(JSON.stringify(SEED_DATA));
     nextId = 50;
   }
-
+  render();
   fetch(DB_URL)
     .then(r => r.json())
     .then(data => {
@@ -816,45 +1041,7 @@ function loadFromStorage() {
     .catch(() => {});
 }
 
-function exportCSV() {
-  const headers = ['Slot','Producer','Label','Vintage','Type','Qty','$/Btl','Notes'];
-  const rows = [...inventory].sort((a,b) => {
-    const sa = a.slot || '', sb = b.slot || '';
-    return sa.localeCompare(sb, undefined, { numeric: true, sensitivity: 'base' });
-  }).map(e => [
-    e.slot || '',
-    e.producer || '',
-    e.label || '',
-    e.vintage || '',
-    e.type || '',
-    e.qty ?? '',
-    e.price || '',
-    (e.notes || '').replace(/"/g, '""')
-  ].map(v => `"${v}"`).join(','));
-  const csv = [headers.join(','), ...rows].join('\r\n');
-  const blob = new Blob([csv], { type: 'text/csv' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  const date = new Date().toISOString().slice(0,10);
-  a.download = `wine-cellar-${date}.csv`;
-  a.click();
-  URL.revokeObjectURL(url);
-  showToast('Inventory exported as CSV');
-}
-
-function resetToSeed() {
-  if (confirm('Reset to original inventory? All changes will be lost.')) {
-    inventory = JSON.parse(JSON.stringify(SEED_DATA));
-    nextId = 50;
-    saveToStorage();
-    render();
-    showToast('Inventory reset to original');
-  }
-}
-
-// ── State ────────────────────────────────────────────────────────────────────
-
+// ── State ─────────────────────────────────────────────────────────────────────
 let inventory = [];
 let nextId = 50;
 let currentFilter = 'all';
@@ -865,8 +1052,7 @@ let sortDir = 'asc';
 let editingId = null;
 let removeSelectedId = null;
 
-// ── Helpers ──────────────────────────────────────────────────────────────────
-
+// ── Helpers ───────────────────────────────────────────────────────────────────
 function getRowLetter(slot) { return slot.charAt(0).toUpperCase(); }
 
 function getFilteredData() {
@@ -911,7 +1097,6 @@ function groupByRow(data) {
 }
 
 // ── Stats ─────────────────────────────────────────────────────────────────────
-
 function updateStats() {
   const data = getFilteredData();
   document.getElementById('stat-bottles').textContent = totalBottles(data);
@@ -920,7 +1105,6 @@ function updateStats() {
 }
 
 // ── Render ────────────────────────────────────────────────────────────────────
-
 function renderTable() {
   const data = getFilteredData();
   const groups = groupByRow(data);
@@ -1003,12 +1187,10 @@ function renderGrid() {
 
 function render() {
   updateStats();
-  if (currentView === 'table') renderTable();
-  else renderGrid();
+  if (currentView === 'table') renderTable(); else renderGrid();
 }
 
-// ── View / Filter / Sort ──────────────────────────────────────────────────────
-
+// ── Controls ──────────────────────────────────────────────────────────────────
 function setView(v) {
   currentView = v;
   document.getElementById('table-view').style.display = v === 'table' ? 'block' : 'none';
@@ -1037,15 +1219,14 @@ document.getElementById('search').addEventListener('input', e => {
 });
 
 // ── Add / Edit Modal ──────────────────────────────────────────────────────────
-
 function openAdd() {
   editingId = null;
   document.getElementById('modal-title').textContent = 'Add Bottle';
   document.getElementById('modal-title').className = 'add-title';
-  document.getElementById('btn-delete').style.display = 'none';
   ['slot','qty','producer','label','vintage','value','region','notes'].forEach(f => {
-    document.getElementById('f-' + f).value = f === 'qty' ? '1' : '';
+    document.getElementById('f-'+f).value = f === 'qty' ? 1 : '';
   });
+  document.getElementById('btn-delete').style.display = 'none';
   document.getElementById('modal').classList.add('open');
 }
 
@@ -1055,217 +1236,178 @@ function openEdit(id) {
   editingId = id;
   document.getElementById('modal-title').textContent = 'Edit Entry';
   document.getElementById('modal-title').className = 'add-title';
-  document.getElementById('btn-delete').style.display = 'block';
-  document.getElementById('f-slot').value     = e.slot;
-  document.getElementById('f-qty').value      = e.qty;
-  document.getElementById('f-producer').value = e.producer;
-  document.getElementById('f-label').value    = e.label;
-  document.getElementById('f-vintage').value  = e.vintage;
-  document.getElementById('f-value').value    = e.value;
-  document.getElementById('f-region').value   = e.region;
-  document.getElementById('f-notes').value    = e.notes || '';
+  document.getElementById('f-slot').value    = e.slot;
+  document.getElementById('f-qty').value     = e.qty;
+  document.getElementById('f-producer').value= e.producer;
+  document.getElementById('f-label').value   = e.label;
+  document.getElementById('f-vintage').value = e.vintage;
+  document.getElementById('f-value').value   = e.value;
+  document.getElementById('f-region').value  = e.region;
+  document.getElementById('f-notes').value   = e.notes || '';
+  document.getElementById('btn-delete').style.display = 'inline-block';
   document.getElementById('modal').classList.add('open');
 }
 
-function closeModal() {
-  document.getElementById('modal').classList.remove('open');
-  editingId = null;
-}
+function closeModal() { document.getElementById('modal').classList.remove('open'); }
 
 function saveEntry() {
-  const slot     = document.getElementById('f-slot').value.trim();
-  const producer = document.getElementById('f-producer').value.trim();
-  if (!slot || !producer) { showToast('Slot and producer are required'); return; }
-  const entry = {
-    slot,
-    qty:     parseInt(document.getElementById('f-qty').value) || 1,
-    producer,
-    label:   document.getElementById('f-label').value.trim(),
-    vintage: document.getElementById('f-vintage').value.trim(),
-    value:   parseFloat(document.getElementById('f-value').value) || 0,
-    region:  document.getElementById('f-region').value.trim(),
-    notes:   document.getElementById('f-notes').value.trim(),
-  };
-  if (editingId !== null) {
+  const slot    = document.getElementById('f-slot').value.trim();
+  const qty     = parseInt(document.getElementById('f-qty').value) || 1;
+  const producer= document.getElementById('f-producer').value.trim();
+  const label   = document.getElementById('f-label').value.trim();
+  const vintage = document.getElementById('f-vintage').value.trim();
+  const value   = parseFloat(document.getElementById('f-value').value) || 0;
+  const region  = document.getElementById('f-region').value.trim();
+  const notes   = document.getElementById('f-notes').value.trim();
+  if (!slot || !producer) { showToast('Slot and Producer required'); return; }
+  if (editingId) {
     const idx = inventory.findIndex(x => x.id === editingId);
-    if (idx !== -1) inventory[idx] = { ...entry, id: editingId };
-    showToast('Entry updated');
+    if (idx > -1) inventory[idx] = { ...inventory[idx], slot, qty, producer, label, vintage, value, region, notes };
   } else {
-    inventory.push({ ...entry, id: nextId++ });
-    showToast('Bottle added');
+    inventory.push({ id: nextId++, slot, qty, producer, label, vintage, value, region, notes });
   }
   saveToStorage();
-  closeModal();
   render();
+  closeModal();
+  showToast(editingId ? 'Entry updated' : 'Bottle added');
 }
 
 function deleteEntry() {
-  if (editingId === null) return;
+  if (!editingId) return;
+  if (!confirm('Remove this entry entirely?')) return;
   inventory = inventory.filter(x => x.id !== editingId);
   saveToStorage();
-  closeModal();
   render();
+  closeModal();
   showToast('Entry removed');
 }
 
-function consume(id) {
-  const e = inventory.find(x => x.id === id);
-  if (!e) return;
-  if (e.qty <= 1) {
-    if (confirm(`Remove last bottle of ${e.producer} ${e.label}?`)) {
-      inventory = inventory.filter(x => x.id !== id);
-      saveToStorage();
-      render();
-      showToast('Bottle removed from inventory');
-    }
-  } else {
-    e.qty--;
-    saveToStorage();
-    render();
-    showToast(`${e.producer} — ${e.qty} remaining`);
-  }
-}
-
 // ── Remove Bottle Modal ───────────────────────────────────────────────────────
-
 function openRemove() {
   removeSelectedId = null;
   document.getElementById('remove-search').value = '';
-  document.getElementById('remove-qty').value = '1';
+  document.getElementById('remove-results').innerHTML = '<div class="remove-empty">Start typing to find a wine</div>';
   document.getElementById('remove-summary').classList.remove('visible');
-  const btn = document.getElementById('remove-confirm-btn');
-  btn.disabled = true;
-  btn.style.opacity = '0.4';
-  btn.style.cursor = 'not-allowed';
-  renderRemoveResults('');
+  document.getElementById('remove-confirm-btn').disabled = true;
+  document.getElementById('remove-confirm-btn').style.opacity = '0.4';
+  document.getElementById('remove-confirm-btn').style.cursor = 'not-allowed';
   document.getElementById('remove-modal').classList.add('open');
-  setTimeout(() => document.getElementById('remove-search').focus(), 80);
+  setTimeout(() => document.getElementById('remove-search').focus(), 100);
 }
 
-function closeRemoveModal() {
-  document.getElementById('remove-modal').classList.remove('open');
-  removeSelectedId = null;
-}
+function closeRemoveModal() { document.getElementById('remove-modal').classList.remove('open'); }
 
 function filterRemoveResults() {
-  const q = document.getElementById('remove-search').value;
-  renderRemoveResults(q);
-}
-
-function renderRemoveResults(query) {
+  const s = document.getElementById('remove-search').value.toLowerCase().trim();
   const container = document.getElementById('remove-results');
-  const q = query.trim().toLowerCase();
-
-  let matches = [...inventory];
-  if (q) {
-    matches = matches.filter(e =>
-      e.producer.toLowerCase().includes(q) ||
-      e.label.toLowerCase().includes(q) ||
-      e.slot.toLowerCase().includes(q) ||
-      e.vintage.toString().includes(q) ||
-      e.region.toLowerCase().includes(q)
-    );
-  }
-
-  if (matches.length === 0) {
-    container.innerHTML = '<div class="remove-empty">No bottles found</div>';
-    return;
-  }
-
-  matches.sort((a, b) => a.slot.localeCompare(b.slot, undefined, { numeric: true }));
-
-  let html = '';
-  matches.forEach(e => {
-    const row = getRowLetter(e.slot);
-    const color = ROW_COLORS[row] || '#888';
-    const isSelected = e.id === removeSelectedId;
-    html += `<div class="remove-result-item${isSelected ? ' selected' : ''}" onclick="selectRemoveItem(${e.id})">
-      <span class="rr-slot" style="color:${color};border-color:${color}40;background:${color}12">${e.slot}</span>
+  if (!s) { container.innerHTML = '<div class="remove-empty">Start typing to find a wine</div>'; return; }
+  const matches = inventory.filter(e =>
+    e.producer.toLowerCase().includes(s) ||
+    e.label.toLowerCase().includes(s) ||
+    e.slot.toLowerCase().includes(s) ||
+    e.vintage.toString().includes(s)
+  );
+  if (!matches.length) { container.innerHTML = '<div class="remove-empty">No matches found</div>'; return; }
+  const row = e => getRowLetter(e.slot);
+  const color = e => ROW_COLORS[row(e)] || '#888';
+  container.innerHTML = matches.map(e => `
+    <div class="remove-result-item ${removeSelectedId === e.id ? 'selected' : ''}" onclick="selectRemoveItem(${e.id})">
+      <span class="rr-slot" style="color:${color(e)};border-color:${color(e)}40">${e.slot}</span>
       <div class="rr-info">
         <div class="rr-producer">${e.producer}</div>
         <div class="rr-label">${e.label} · ${e.vintage}</div>
       </div>
       <span class="rr-qty">${e.qty} btl</span>
-    </div>`;
-  });
-  container.innerHTML = html;
+    </div>`).join('');
 }
 
 function selectRemoveItem(id) {
   removeSelectedId = id;
   const e = inventory.find(x => x.id === id);
   if (!e) return;
-
-  // Update summary
-  document.getElementById('remove-summary-name').textContent = `${e.producer} — ${e.label} (${e.vintage})`;
+  document.getElementById('remove-summary-name').textContent = `${e.producer} ${e.label} ${e.vintage}`;
+  document.getElementById('remove-qty').value = 1;
   document.getElementById('remove-current-qty').value = e.qty;
-  const qtyInput = document.getElementById('remove-qty');
-  qtyInput.max = e.qty;
-  qtyInput.value = 1;
   document.getElementById('remove-summary').classList.add('visible');
-
-  // Enable confirm button
-  const btn = document.getElementById('remove-confirm-btn');
-  btn.disabled = false;
-  btn.style.opacity = '1';
-  btn.style.cursor = 'pointer';
-
-  // Re-render list to show selection highlight
+  document.getElementById('remove-confirm-btn').disabled = false;
+  document.getElementById('remove-confirm-btn').style.opacity = '1';
+  document.getElementById('remove-confirm-btn').style.cursor = 'pointer';
   filterRemoveResults();
 }
 
 function updateRemoveSummary() {
+  if (!removeSelectedId) return;
   const e = inventory.find(x => x.id === removeSelectedId);
   if (!e) return;
-  const input = document.getElementById('remove-qty');
-  let val = parseInt(input.value) || 1;
-  if (val < 1) val = 1;
-  if (val > e.qty) val = e.qty;
-  input.value = val;
+  const qty = parseInt(document.getElementById('remove-qty').value) || 1;
+  document.getElementById('remove-confirm-btn').disabled = qty < 1 || qty > e.qty;
+  document.getElementById('remove-confirm-btn').style.opacity = (qty < 1 || qty > e.qty) ? '0.4' : '1';
 }
 
 function confirmRemove() {
   if (!removeSelectedId) return;
-  const e = inventory.find(x => x.id === removeSelectedId);
-  if (!e) return;
-
-  const qtyToRemove = parseInt(document.getElementById('remove-qty').value) || 1;
-  const clamped = Math.min(qtyToRemove, e.qty);
-
-  if (clamped >= e.qty) {
-    inventory = inventory.filter(x => x.id !== removeSelectedId);
-    showToast(`${e.producer} — removed from cellar`);
+  const idx = inventory.findIndex(x => x.id === removeSelectedId);
+  if (idx < 0) return;
+  const qty = parseInt(document.getElementById('remove-qty').value) || 1;
+  const e = inventory[idx];
+  if (qty >= e.qty) {
+    inventory.splice(idx, 1);
+    showToast(`Removed: ${e.producer} ${e.label}`);
   } else {
-    e.qty -= clamped;
-    showToast(`${e.producer} — ${e.qty} remaining`);
+    inventory[idx].qty -= qty;
+    showToast(`Removed ${qty} btl · ${e.producer} ${e.label}`);
   }
-
   saveToStorage();
-  closeRemoveModal();
   render();
+  closeRemoveModal();
+}
+
+// ── Export ────────────────────────────────────────────────────────────────────
+function exportCSV() {
+  const headers = ['Slot','Producer','Label','Vintage','Qty','$/Btl','Region','Notes'];
+  const rows = [...inventory].sort((a,b) =>
+    a.slot.localeCompare(b.slot, undefined, { numeric: true, sensitivity: 'base' })
+  ).map(e => [
+    e.slot, e.producer, e.label, e.vintage, e.qty, e.value, e.region,
+    (e.notes||'').replace(/"/g,'""')
+  ].map(v => `"${v}"`).join(','));
+  const csv = [headers.join(','), ...rows].join('\r\n');
+  const blob = new Blob([csv], { type: 'text/csv' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `wine-cellar-${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('Inventory exported as CSV');
+}
+
+function resetToSeed() {
+  if (confirm('Reset to original inventory? All changes will be lost.')) {
+    inventory = JSON.parse(JSON.stringify(SEED_DATA));
+    nextId = 50;
+    saveToStorage();
+    render();
+    showToast('Inventory reset to original');
+  }
 }
 
 // ── Toast ─────────────────────────────────────────────────────────────────────
-
+let toastTimer;
 function showToast(msg) {
   const t = document.getElementById('toast');
   t.textContent = msg;
   t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 2500);
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2800);
 }
 
-// Close modals on overlay click
-document.getElementById('modal').addEventListener('click', e => {
-  if (e.target === document.getElementById('modal')) closeModal();
-});
-document.getElementById('remove-modal').addEventListener('click', e => {
-  if (e.target === document.getElementById('remove-modal')) closeRemoveModal();
-});
-
 // ── Init ──────────────────────────────────────────────────────────────────────
-
-loadFromStorage();
-render();
+// App loads only after PIN is entered (see unlockApp above)
+// If already unlocked this session, loadFromStorage() is called immediately
+if (sessionStorage.getItem(SESSION_KEY) === '1') {
+  loadFromStorage();
+}
 </script>
 </body>
 </html>
