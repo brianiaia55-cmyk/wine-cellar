@@ -890,16 +890,24 @@ const SEED_DATA = [
 // ── Firebase ──────────────────────────────────────────────────────────────────
 const DB_URL = 'https://brian-wine-fridge-tracking-app-default-rtdb.firebaseio.com/wine-cellar.json';
 
+const DATA_VERSION = 'v3-2026-05-11';
+
 function saveToStorage() {
   try { localStorage.setItem(STORAGE_KEY, JSON.stringify({ inventory, nextId })); } catch(e) {}
   fetch(DB_URL, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ inventory, nextId })
+    body: JSON.stringify({ inventory, nextId, version: DATA_VERSION })
   }).catch(e => console.warn('Firebase sync failed', e));
 }
 
 function loadFromStorage() {
+  // Check version — force reset if data version doesn't match
+  const storedVersion = localStorage.getItem('wc-version');
+  if (storedVersion !== DATA_VERSION) {
+    localStorage.removeItem(STORAGE_KEY);
+    localStorage.setItem('wc-version', DATA_VERSION);
+  }
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (raw) {
@@ -913,19 +921,25 @@ function loadFromStorage() {
   if (!inventory.length) {
     inventory = JSON.parse(JSON.stringify(SEED_DATA));
     nextId = 400;
+    saveToStorage();
   }
   render();
   fetch(DB_URL)
     .then(r => r.json())
     .then(data => {
-      if (data && data.inventory && data.inventory.length > 0) {
+      if (data && data.inventory && data.inventory.length > 0 && data.version === DATA_VERSION) {
         inventory = data.inventory;
         nextId = data.nextId || 400;
         localStorage.setItem(STORAGE_KEY, JSON.stringify({ inventory, nextId }));
         render();
         showToast('Synced from cloud ☁️');
       } else {
+        // Version mismatch or no data — push fresh SEED_DATA
+        inventory = JSON.parse(JSON.stringify(SEED_DATA));
+        nextId = 400;
         saveToStorage();
+        render();
+        showToast('Inventory updated to latest version ✓');
       }
     })
     .catch(() => {});
