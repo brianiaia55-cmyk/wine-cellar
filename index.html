@@ -639,6 +639,12 @@ function checkPin() {
 function unlockApp() {
   document.getElementById('pin-screen').style.display = 'none';
   document.getElementById('app').style.display = 'block';
+  // URL reset trigger: ?reset=1 wipes all local storage
+  if (new URLSearchParams(window.location.search).get('reset') === '1') {
+    localStorage.clear();
+    sessionStorage.clear();
+    showToast('Local cache cleared — syncing from cloud ☁️');
+  }
   loadFromStorage();
 }
 
@@ -708,9 +714,8 @@ const SEED_DATA = [
   {id:26, slot:'F1-F2',  qty:2,  producer:'Bella Union',        label:'Cabernet Sauvignon',           vintage:'2022', region:'Napa Valley',    value:75,   notes:''},
   {id:27, slot:'F3-F8',  qty:6,  producer:'Post & Beam',        label:'Cabernet Sauvignon',           vintage:'2022', region:'Napa Valley',    value:55,   notes:''},
   {id:28, slot:'F9-F10', qty:2,  producer:'Ch. Grand Pontet',   label:'Grand Cru Classé',             vintage:'2010', region:'St-Émilion',     value:95,   notes:'🔴 Drink now'},
-  // ── L150 — Row G ──
-  {id:45, slot:'G1',     qty:1,  producer:'',                   label:'',                             vintage:'',     region:'',               value:0,    notes:'Unknown — inventory needed'},
   // ── L150 — Row H ──
+  {id:45, slot:'H23',    qty:2,  producer:'TEST',               label:'Phantom Bottle',               vintage:'2026', region:'Test',           value:0,    notes:'🔴 Delete me'},
   {id:30, slot:'H1-H2',  qty:2,  producer:'Frank Family',       label:'Cabernet Sauvignon',           vintage:'2021', region:'Napa Valley',    value:60,   notes:''},
   {id:31, slot:'H3',     qty:1,  producer:'Ch. Le Roc',         label:'Bordeaux',                     vintage:'2022', region:'Bordeaux',       value:35,   notes:''},
   {id:32, slot:'H4',     qty:1,  producer:'Ch. Laplagnotte',    label:'St-Émilion GC',                vintage:'2021', region:'St-Émilion',     value:45,   notes:''},
@@ -891,9 +896,9 @@ const SEED_DATA = [
 ];
 
 // ── Firebase ──────────────────────────────────────────────────────────────────
-const DB_URL = 'https://brian-wine-fridge-tracking-app-default-rtdb.firebaseio.com/wine-cellar-v3.json';
+const DB_URL = 'https://brian-wine-fridge-tracking-app-default-rtdb.firebaseio.com/wine-cellar-v6.json';
 
-const DATA_VERSION = 'v4-2026-05-11';
+const DATA_VERSION = 'v9-2026-05-11';
 
 function saveToStorage() {
   try { localStorage.setItem(STORAGE_KEY, JSON.stringify({ inventory, nextId })); } catch(e) {}
@@ -961,9 +966,7 @@ let removeSelectedId = null;
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 function getRowLetter(slot) {
-  // B stickers physically live in Row A
   const s = slot.toUpperCase();
-  if (s.startsWith('B')) return 'A';
   return s.charAt(0);
 }
 
@@ -976,8 +979,6 @@ function getFilterRow(slot) {
 
 function slotSortKey(slot) {
   const s = slot.toUpperCase();
-  // B stickers sort under A
-  if (s.startsWith('B')) return 'A' + s;
   return s.charAt(0) + s;
 }
 
