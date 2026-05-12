@@ -715,7 +715,6 @@ const SEED_DATA = [
   {id:27, slot:'F3-F8',  qty:6,  producer:'Post & Beam',        label:'Cabernet Sauvignon',           vintage:'2022', region:'Napa Valley',    value:55,   notes:''},
   {id:28, slot:'F9-F10', qty:2,  producer:'Ch. Grand Pontet',   label:'Grand Cru Classé',             vintage:'2010', region:'St-Émilion',     value:95,   notes:'🔴 Drink now'},
   // ── L150 — Row H ──
-  {id:45, slot:'H23',    qty:2,  producer:'TEST',               label:'Phantom Bottle',               vintage:'2026', region:'Test',           value:0,    notes:'🔴 Delete me'},
   {id:30, slot:'H1-H2',  qty:2,  producer:'Frank Family',       label:'Cabernet Sauvignon',           vintage:'2021', region:'Napa Valley',    value:60,   notes:''},
   {id:31, slot:'H3',     qty:1,  producer:'Ch. Le Roc',         label:'Bordeaux',                     vintage:'2022', region:'Bordeaux',       value:35,   notes:''},
   {id:32, slot:'H4',     qty:1,  producer:'Ch. Laplagnotte',    label:'St-Émilion GC',                vintage:'2021', region:'St-Émilion',     value:45,   notes:''},
@@ -856,7 +855,7 @@ const SEED_DATA = [
   {id:285, slot:'R-5',   qty:1,  producer:'Goldschmidt',        label:'Plus Cabernet Sauvignon',      vintage:'2021', region:'Oakville',       value:150,  notes:''},
   {id:286, slot:'R-6',   qty:1,  producer:'Trefethen',          label:'Estate Cabernet Sauvignon',    vintage:'2021', region:'Oak Knoll',      value:65,   notes:''},
   {id:287, slot:'R-7',   qty:1,  producer:'Silver Oak',         label:'Cabernet Sauvignon',           vintage:'2019', region:'Napa Valley',    value:179,  notes:'Gift'},
-  {id:288, slot:'R-8',   qty:1,  producer:'CADE',               label:'Napa Valley Cabernet Sauvignon',vintage:'2022',region:'Napa Valley',    value:110,  notes:''},
+  {id:288, slot:'R-8',   qty:1,  producer:'CADE',               label:'Estate Cabernet Sauvignon',    vintage:'2022', region:'Howell Mtn',     value:145,  notes:''},
   {id:289, slot:'R-9',   qty:1,  producer:'Ch. Rauzan-Ségla',   label:'Grand Cru Classé',             vintage:'2019', region:'Margaux',        value:175,  notes:''},
   {id:290, slot:'R-10',  qty:1,  producer:'Double Diamond',     label:'Cabernet Sauvignon',           vintage:'2023', region:'Oakville',       value:95,   notes:'Schrader Cellars'},
   {id:291, slot:'R-11',  qty:1,  producer:'Hall',               label:'1873 Cabernet Sauvignon',      vintage:'2021', region:'Rutherford',     value:90,   notes:''},
@@ -893,12 +892,19 @@ const SEED_DATA = [
   {id:344, slot:'U-4',   qty:1,  producer:'Nicolas Feuillatte', label:'Premium Réserve Brut Rosé',    vintage:'NV',   region:'Champagne',      value:0,    notes:'Boxed'},
   {id:345, slot:'U-5',   qty:1,  producer:'Charles Mignon',     label:'Champagne Brut',               vintage:'NV',   region:'Champagne',      value:0,    notes:'Boxed'},
   {id:346, slot:'U-6',   qty:1,  producer:'Veuve Clicquot',     label:'Brut',                         vintage:'NV',   region:'Champagne',      value:0,    notes:''},
+  // ── Hall Napa Valley 2022 ──
+  {id:347, slot:'V-1',   qty:1,  producer:'Hall',               label:'Napa Valley Cabernet Sauvignon',vintage:'2022', region:'Napa Valley',    value:55,   notes:''},
+  {id:348, slot:'V-2',   qty:1,  producer:'Hall',               label:'Napa Valley Cabernet Sauvignon',vintage:'2022', region:'Napa Valley',    value:55,   notes:''},
+  // ── Extras ──
+  {id:351, slot:'X-1',   qty:1,  producer:'Gemma di Luna',      label:'Pinot Grigio',                 vintage:'NV',   region:'Italy',          value:15,   notes:'Extras'},
+  {id:352, slot:'X-2',   qty:1,  producer:'Marchese di Borgosole', label:'Rosato Puglia IGT',         vintage:'NV',   region:'Puglia',         value:15,   notes:'Extras'},
+  {id:353, slot:'X-3',   qty:1,  producer:'Le Beach',           label:'Rosé',                         vintage:'NV',   region:'France',         value:15,   notes:'Extras'},
 ];
 
 // ── Firebase ──────────────────────────────────────────────────────────────────
 const DB_URL = 'https://brian-wine-fridge-tracking-app-default-rtdb.firebaseio.com/wine-cellar-v6.json';
 
-const DATA_VERSION = 'v9-2026-05-11';
+const DATA_VERSION = 'v11-2026-05-11';
 
 function saveToStorage() {
   try { localStorage.setItem(STORAGE_KEY, JSON.stringify({ inventory, nextId })); } catch(e) {}
