@@ -470,6 +470,7 @@ tr:hover td { background: rgba(201,168,76,0.04); }
     <button class="filter-btn" onclick="filterRow('D', this)">D</button>
     <button class="filter-btn" onclick="filterRow('E', this)">E</button>
     <button class="filter-btn" onclick="filterRow('F', this)">F</button>
+    <button class="filter-btn" onclick="filterRow('G', this)">G</button>
     <button class="filter-btn" onclick="filterRow('H', this)">H</button>
     <button class="filter-btn" onclick="filterRow('I', this)">I</button>
     <button class="filter-btn" onclick="filterRow('J', this)">J</button>
@@ -707,6 +708,8 @@ const SEED_DATA = [
   {id:26, slot:'F1-F2',  qty:2,  producer:'Bella Union',        label:'Cabernet Sauvignon',           vintage:'2022', region:'Napa Valley',    value:75,   notes:''},
   {id:27, slot:'F3-F8',  qty:6,  producer:'Post & Beam',        label:'Cabernet Sauvignon',           vintage:'2022', region:'Napa Valley',    value:55,   notes:''},
   {id:28, slot:'F9-F10', qty:2,  producer:'Ch. Grand Pontet',   label:'Grand Cru Classé',             vintage:'2010', region:'St-Émilion',     value:95,   notes:'🔴 Drink now'},
+  // ── L150 — Row G ──
+  {id:45, slot:'G1',     qty:1,  producer:'',                   label:'',                             vintage:'',     region:'',               value:0,    notes:'Unknown — inventory needed'},
   // ── L150 — Row H ──
   {id:30, slot:'H1-H2',  qty:2,  producer:'Frank Family',       label:'Cabernet Sauvignon',           vintage:'2021', region:'Napa Valley',    value:60,   notes:''},
   {id:31, slot:'H3',     qty:1,  producer:'Ch. Le Roc',         label:'Bordeaux',                     vintage:'2022', region:'Bordeaux',       value:35,   notes:''},
@@ -890,7 +893,7 @@ const SEED_DATA = [
 // ── Firebase ──────────────────────────────────────────────────────────────────
 const DB_URL = 'https://brian-wine-fridge-tracking-app-default-rtdb.firebaseio.com/wine-cellar-v3.json';
 
-const DATA_VERSION = 'v3-2026-05-11';
+const DATA_VERSION = 'v4-2026-05-11';
 
 function saveToStorage() {
   try { localStorage.setItem(STORAGE_KEY, JSON.stringify({ inventory, nextId })); } catch(e) {}
